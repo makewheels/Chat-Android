@@ -5,8 +5,8 @@ import android.content.ContentValues;
 import android.database.Cursor;
 import android.net.Uri;
 
-public class MyJDataProvider extends ContentProvider {
-    public MyJDataProvider() {
+public class DataProvider extends ContentProvider {
+    public DataProvider() {
     }
 
     @Override

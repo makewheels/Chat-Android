@@ -4,8 +4,6 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import android.os.Bundle;
 
-import cn.jpush.android.api.JPushInterface;
-
 public class MainActivity extends AppCompatActivity {
 
     @Override

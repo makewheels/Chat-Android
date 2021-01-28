@@ -102,7 +102,6 @@
         <activity
             android:name="cn.jpush.android.ui.PopWinActivity"
             android:configChanges="orientation|keyboardHidden"
-            android:exported="false"
             android:theme="@style/MyDialogStyle">
             <intent-filter>
                 <category android:name="android.intent.category.DEFAULT" />
@@ -110,6 +109,8 @@
             </intent-filter>
         </activity>
 
+        <meta-data android:name="JPUSH_CHANNEL" android:value="developer-default"/>
+        <meta-data android:name="JPUSH_APPKEY" android:value="bcec2d094f36af5587048c02"/>
     </application>
 
 </manifest>

@@ -51,13 +51,8 @@ dependencies {
     androidTestImplementation 'androidx.test.ext:junit:1.1.2'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.3.0'
 
-
-    implementation files('libs/jcore-android-2.6.0.jar')
-    implementation files('libs/jpush-android-3.9.1.jar')
-    implementation files('libs/jverification-android-not_support_dynamic-release-2.6.7.jar')
-
-//    implementation 'cn.jiguang.sdk:jcore:2.6.0'
-//    implementation 'cn.jiguang.sdk:jpush:3.9.1'
+    implementation 'cn.jiguang.sdk:jcore:2.6.0'
+    implementation 'cn.jiguang.sdk:jpush:3.9.1'
 //    implementation 'cn.jiguang.sdk:jmessage:2.9.2'
 
 }

@@ -11,6 +11,5 @@ public class ExampleApplication extends Application {
 
         JPushInterface.setDebugMode(true);
         JPushInterface.init(this);
-
     }
 }

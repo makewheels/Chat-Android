@@ -1,7 +1,6 @@
 package com.androiddeveloper.chat;
 
 import android.app.Application;
-import android.util.Log;
 
 import cn.jpush.android.api.JPushInterface;
 

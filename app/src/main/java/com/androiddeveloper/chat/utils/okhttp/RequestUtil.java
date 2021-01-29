@@ -1,4 +1,4 @@
-package com.androiddeveloper.chat.utils;
+package com.androiddeveloper.chat.utils.okhttp;
 
 import android.text.TextUtils;
 

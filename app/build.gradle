@@ -54,6 +54,12 @@ dependencies {
     implementation 'cn.jiguang.sdk:jcore:2.6.0'
     implementation 'cn.jiguang.sdk:jpush:3.9.1'
 
-    implementation("com.squareup.okhttp3:okhttp:4.9.0")
+    implementation 'com.squareup.okhttp3:okhttp:4.9.0'
+    implementation 'com.github.GrenderG:Toasty:1.5.0'
+
+    implementation 'org.projectlombok:lombok:1.18.16'
+    annotationProcessor 'org.projectlombok:lombok:1.18.16'
+
+    implementation 'com.alibaba:fastjson:1.2.75'
 
 }

@@ -1,4 +1,4 @@
-package com.androiddeveloper.chat.utils;
+package com.androiddeveloper.chat.utils.okhttp;
 
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -21,25 +21,17 @@ import okhttp3.Response;
 public abstract class CallBackUtil<T> {
     public static Handler mMainHandler = new Handler(Looper.getMainLooper());
 
-
     public void onProgress(float progress, long total) {
     }
-
-    ;
 
     public void onError(final Call call, final Exception e) {
         mMainHandler.post(() -> onFailure(call, e));
     }
 
-    ;
-
     public void onSeccess(Call call, Response response) throws IOException {
         final T obj = onParseResponse(call, response);
         mMainHandler.post(() -> onResponse(obj));
     }
-
-    ;
-
 
     /**
      * 解析response，执行在子线程
@@ -55,7 +47,6 @@ public abstract class CallBackUtil<T> {
      * 访问网络成功后被调用，执行在UI线程
      */
     public abstract void onResponse(T response);
-
 
     public static abstract class CallBackDefault extends CallBackUtil<Response> {
         @Override
@@ -83,8 +74,6 @@ public abstract class CallBackUtil<T> {
             mTargetHeight = targetHeight;
         }
 
-        ;
-
         public CallBackBitmap(ImageView imageView) {
             int width = imageView.getWidth();
             int height = imageView.getHeight();
@@ -94,8 +83,6 @@ public abstract class CallBackUtil<T> {
             mTargetWidth = width;
             mTargetHeight = height;
         }
-
-        ;
 
         @Override
         public Bitmap onParseResponse(Call call, Response response) {
@@ -196,13 +183,12 @@ public abstract class CallBackUtil<T> {
                 try {
                     response.body().close();
                     if (is != null) is.close();
-                } catch (IOException e) {
+                } catch (IOException ignored) {
                 }
                 try {
                     if (fos != null) fos.close();
-                } catch (IOException e) {
+                } catch (IOException ignored) {
                 }
-
             }
             return null;
         }

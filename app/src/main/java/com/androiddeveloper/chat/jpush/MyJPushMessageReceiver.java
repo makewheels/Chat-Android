@@ -1,4 +1,4 @@
-package com.androiddeveloper.chat;
+package com.androiddeveloper.chat.jpush;
 
 import android.content.Context;
 import android.util.Log;

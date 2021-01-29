@@ -1,4 +1,4 @@
-package com.androiddeveloper.chat;
+package com.androiddeveloper.chat.jpush;
 
 import android.content.ContentProvider;
 import android.content.ContentValues;

@@ -54,4 +54,6 @@ dependencies {
     implementation 'cn.jiguang.sdk:jcore:2.6.0'
     implementation 'cn.jiguang.sdk:jpush:3.9.1'
 
+    implementation("com.squareup.okhttp3:okhttp:4.9.0")
+
 }

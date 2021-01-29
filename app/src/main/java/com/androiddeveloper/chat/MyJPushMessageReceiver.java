@@ -13,7 +13,7 @@ public class MyJPushMessageReceiver extends JPushMessageReceiver {
     @Override
     public void onMessage(Context context, CustomMessage customMessage) {
         String message = customMessage.message;
-        Log.e("tag", "onMessage " + message);
+        Log.e("tag", "MyJPushMessageReceiver onMessage " + message);
     }
 
     @Override

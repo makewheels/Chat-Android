@@ -9,7 +9,7 @@ public class ExampleApplication extends Application {
     public void onCreate() {
         super.onCreate();
 
-        JPushInterface.setDebugMode(true);
+//        JPushInterface.setDebugMode(true);
         JPushInterface.init(this);
     }
 }

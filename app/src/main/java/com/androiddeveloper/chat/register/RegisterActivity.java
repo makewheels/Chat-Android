@@ -96,12 +96,13 @@ public class RegisterActivity extends AppCompatActivity {
                     LoginTokenUtil.saveLoginToken(userInfoResponse.getLoginToken());
                     SharedPreferencesUtil.putString(Constants.KEY_USER_ID, userInfoResponse.getUserId());
                     SharedPreferencesUtil.putString(Constants.KEY_LOGIN_NAME, userInfoResponse.getLoginName());
-                    SharedPreferencesUtil.putString(Constants.KEY_HEADIMAGEURL, userInfoResponse.getHeadImageUrl());
+                    SharedPreferencesUtil.putString(Constants.KEY_HEAD_IMAGE_URL, userInfoResponse.getHeadImageUrl());
                 }
-                //主动主界面
+                //跳转到主界面
                 startActivity(new Intent(RegisterActivity.this, MainActivity.class));
                 Toasty.info(RegisterActivity.this, R.string.register_success,
                         Toasty.LENGTH_SHORT).show();
+                setResult(1);
                 finish();
             }
         });

@@ -8,6 +8,7 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
 
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.alibaba.fastjson.JSON;
@@ -34,6 +35,8 @@ public class LoginActivity extends AppCompatActivity {
     private EditText et_password;
     private Button btn_login;
     private Button btn_to_register;
+
+    private static final int REQUEST_CODE_START_LOGIN_ACTIVITY = 0;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -71,9 +74,23 @@ public class LoginActivity extends AppCompatActivity {
         btn_to_register.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                startActivity(new Intent(LoginActivity.this, RegisterActivity.class));
+                //前往注册页面的时候，要一个结果
+                //一种情况是用户直接返回，不需要任何操作
+                //还有一种情况是用户在注册页注册成功，那就要finish掉登录Activity
+                Intent intent = new Intent(LoginActivity.this, RegisterActivity.class);
+                startActivityForResult(intent, REQUEST_CODE_START_LOGIN_ACTIVITY);
             }
         });
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (requestCode == REQUEST_CODE_START_LOGIN_ACTIVITY) {
+            if (resultCode == 1) {
+                finish();
+            }
+        }
     }
 
     /**
@@ -116,7 +133,7 @@ public class LoginActivity extends AppCompatActivity {
                     LoginTokenUtil.saveLoginToken(userInfoResponse.getLoginToken());
                     SharedPreferencesUtil.putString(Constants.KEY_USER_ID, userInfoResponse.getUserId());
                     SharedPreferencesUtil.putString(Constants.KEY_LOGIN_NAME, userInfoResponse.getLoginName());
-                    SharedPreferencesUtil.putString(Constants.KEY_HEADIMAGEURL, userInfoResponse.getHeadImageUrl());
+                    SharedPreferencesUtil.putString(Constants.KEY_HEAD_IMAGE_URL, userInfoResponse.getHeadImageUrl());
                 }
                 // 跳转到主页面
                 Intent intent = new Intent(LoginActivity.this, MainActivity.class);

@@ -5,6 +5,6 @@ public class Constants {
 
     public static final String KEY_USER_ID = "userId";
     public static final String KEY_LOGIN_NAME = "loginName";
-    public static final String KEY_HEADIMAGEURL = "headImageUrl";
+    public static final String KEY_HEAD_IMAGE_URL = "headImageUrl";
 
 }

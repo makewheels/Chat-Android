@@ -9,11 +9,10 @@ import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 
-import com.androiddeveloper.chat.main.MainActivity;
 import com.androiddeveloper.chat.R;
-import com.androiddeveloper.chat.utils.Constants;
-import com.androiddeveloper.chat.utils.okhttp.CallBackUtil;
-import com.androiddeveloper.chat.utils.okhttp.OkhttpUtil;
+import com.androiddeveloper.chat.main.MainActivity;
+import com.androiddeveloper.chat.utils.http.CallBackUtil;
+import com.androiddeveloper.chat.utils.http.HttpUtil;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -60,7 +59,7 @@ public class RegisterActivity extends AppCompatActivity {
         paramsMap.put("loginName", loginName);
         paramsMap.put("password", password);
 
-        OkhttpUtil.post(Constants.SERVER + "/user/register", paramsMap,
+        HttpUtil.post("/user/register", paramsMap,
                 new CallBackUtil.CallBackString() {
                     @Override
                     public void onFailure(Call call, Exception e) {

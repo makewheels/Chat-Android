@@ -1,4 +1,4 @@
-package com.androiddeveloper.chat.utils.okhttp;
+package com.androiddeveloper.chat.utils.http;
 
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -28,7 +28,7 @@ public abstract class CallBackUtil<T> {
         mMainHandler.post(() -> onFailure(call, e));
     }
 
-    public void onSeccess(Call call, Response response) throws IOException {
+    public void onSuccess(Call call, Response response) throws IOException {
         final T obj = onParseResponse(call, response);
         mMainHandler.post(() -> onResponse(obj));
     }

@@ -1,4 +1,4 @@
-package com.androiddeveloper.chat.utils.okhttp;
+package com.androiddeveloper.chat.utils.http;
 
 import java.io.File;
 import java.util.List;

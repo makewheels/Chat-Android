@@ -1,4 +1,4 @@
-package com.androiddeveloper.chat.utils.okhttp;
+package com.androiddeveloper.chat.utils.http;
 
 import android.text.TextUtils;
 
@@ -63,7 +63,10 @@ class RequestUtil {
         this(methodType, url, null, null, null, null, fileMap, fileType, paramsMap, headerMap, callBack);
     }
 
-    private RequestUtil(String methodType, String url, String jsonStr, File file, List<File> fileList, String fileKey, Map<String, File> fileMap, String fileType, Map<String, String> paramsMap, Map<String, String> headerMap, CallBackUtil callBack) {
+    private RequestUtil(String methodType, String url, String jsonStr, File file,
+                        List<File> fileList, String fileKey, Map<String, File> fileMap,
+                        String fileType, Map<String, String> paramsMap,
+                        Map<String, String> headerMap, CallBackUtil callBack) {
         mMetyodType = methodType;
         mUrl = url;
         mJsonStr = jsonStr;
@@ -259,7 +262,7 @@ class RequestUtil {
             @Override
             public void onResponse(final Call call, final Response response) throws IOException {
                 if (mCallBack != null) {
-                    mCallBack.onSeccess(call, response);
+                    mCallBack.onSuccess(call, response);
                 }
             }
 

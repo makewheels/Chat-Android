@@ -61,5 +61,6 @@ dependencies {
     annotationProcessor 'org.projectlombok:lombok:1.18.16'
 
     implementation 'com.alibaba:fastjson:1.2.75'
+    implementation 'com.aliyun.dpa:oss-android-sdk:2.9.5'
 
 }

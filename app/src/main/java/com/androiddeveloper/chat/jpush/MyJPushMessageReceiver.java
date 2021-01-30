@@ -19,7 +19,7 @@ public class MyJPushMessageReceiver extends JPushMessageReceiver {
     @Override
     public void onRegister(Context context, String s) {
         String registrationID = JPushInterface.getRegistrationID(context);
-        Log.e("tag", "onRegister-registrationID " + registrationID);
+        Log.e("tag", "MyJPushMessageReceiver onRegister-registrationID " + registrationID);
     }
 
     @Override

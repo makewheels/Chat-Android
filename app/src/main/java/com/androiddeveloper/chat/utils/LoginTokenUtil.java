@@ -1,11 +1,11 @@
 package com.androiddeveloper.chat.utils;
 
 public class LoginTokenUtil {
-    public static String KEY_LOGIN_TOKEN = "loginToken";
+    public static final String KEY_LOGIN_TOKEN = "loginToken";
     private static String loginToken;
 
     static {
-        loginToken = SharedPreferencesUtil.getString(LoginTokenUtil.KEY_LOGIN_TOKEN);
+        loginToken = SharedPreferencesUtil.getString(KEY_LOGIN_TOKEN);
     }
 
     /**
@@ -24,7 +24,14 @@ public class LoginTokenUtil {
      */
     public static void saveLoginToken(String loginToken) {
         LoginTokenUtil.loginToken = loginToken;
-        SharedPreferencesUtil.putString(LoginTokenUtil.KEY_LOGIN_TOKEN, loginToken);
+        SharedPreferencesUtil.putString(KEY_LOGIN_TOKEN, loginToken);
+    }
+
+    /**
+     * 删除loginToken
+     */
+    public static void removeLoginToken() {
+        SharedPreferencesUtil.remove(KEY_LOGIN_TOKEN);
     }
 
 }

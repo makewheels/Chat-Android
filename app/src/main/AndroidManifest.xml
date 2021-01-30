@@ -10,7 +10,6 @@
     <uses-permission android:name="android.permission.RECEIVE_USER_PRESENT" />
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.READ_PHONE_STATE" />
-    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" /> <!-- 华为角标 -->
@@ -33,8 +32,7 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.Chat">
-
-        <activity android:name=".entrance.EntranceActivity">
+        <activity android:name=".login.LoginActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -43,7 +41,6 @@
         </activity>
         <activity android:name=".main.MainActivity" />
         <activity android:name=".register.RegisterActivity" />
-
         <!-- since 3.0.9 Required SDK 核心功能 -->
         <provider
             android:name=".jpush.DataProvider"
@@ -53,8 +50,7 @@
         <provider
             android:name="cn.jpush.android.service.DownloadProvider"
             android:authorities="${JPUSH_PKGNAME}.DownloadProvider"
-            android:exported="true" />
-        <!-- Since JCore2.0.0 Required SDK核心功能 -->
+            android:exported="true" /> <!-- Since JCore2.0.0 Required SDK核心功能 -->
         <!-- 可配置android:process参数将Service放在其他进程中；android:enabled属性不能是false -->
         <!-- 这个是自定义Service，要继承极光JCommonService，可以在更多手机平台上使得推送通道保持的更稳定 -->
         <service

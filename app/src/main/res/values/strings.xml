@@ -2,4 +2,8 @@
     <string name="app_name" translatable="false">Chat</string>
     <string name="error_occurred_please_retry">Error occurred, please retry</string>
     <string name="Register">Register</string>
+    <string name="login">Login</string>
+    <string name="login_name">Login Name</string>
+    <string name="to_register">To Register</string>
+    <string name="register_success">Register Success!</string>
 </resources>

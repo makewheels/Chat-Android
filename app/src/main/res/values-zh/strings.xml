@@ -2,4 +2,8 @@
 <resources>
     <string name="error_occurred_please_retry">出现错误，请重试</string>
     <string name="Register">注册</string>
+    <string name="login">登录</string>
+    <string name="login_name">登录名</string>
+    <string name="to_register">去注册</string>
+    <string name="register_success">注册成功！</string>
 </resources>

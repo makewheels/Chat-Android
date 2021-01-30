@@ -32,7 +32,7 @@ public class HttpUtil {
             headerMap.put(LoginTokenUtil.KEY_LOGIN_TOKEN, loginToken);
             OkhttpUtil.post(url, paramsMap, headerMap, callBack);
         } else {
-            OkhttpUtil.get(url, paramsMap, callBack);
+            OkhttpUtil.post(url, paramsMap, callBack);
         }
     }
 }

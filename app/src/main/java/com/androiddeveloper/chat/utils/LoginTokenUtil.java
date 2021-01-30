@@ -32,6 +32,7 @@ public class LoginTokenUtil {
      */
     public static void removeLoginToken() {
         SharedPreferencesUtil.remove(KEY_LOGIN_TOKEN);
+        LoginTokenUtil.loginToken = null;
     }
 
 }

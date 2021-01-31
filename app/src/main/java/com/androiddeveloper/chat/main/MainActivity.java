@@ -18,7 +18,6 @@ import com.androiddeveloper.chat.utils.LoginTokenUtil;
 import com.androiddeveloper.chat.utils.http.CallBackUtil;
 import com.androiddeveloper.chat.utils.http.HttpUtil;
 
-import cn.jpush.android.api.JPushInterface;
 import es.dmoral.toasty.Toasty;
 import okhttp3.Call;
 
@@ -35,10 +34,6 @@ public class MainActivity extends AppCompatActivity {
         Intent intent = getIntent();
         String hello = intent.getStringExtra("data");
         tv_hello.setText(hello + " this is main");
-
-        String registrationID = JPushInterface.getRegistrationID(this);
-        Log.e("tag", "MainActivity-registrationID " + registrationID);
-
 
         checkLoginToken();
     }

@@ -2,7 +2,6 @@ package com.androiddeveloper.chat.login;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -27,6 +26,7 @@ import com.androiddeveloper.chat.utils.http.HttpUtil;
 import java.util.HashMap;
 import java.util.Map;
 
+import cn.jpush.android.api.JPushInterface;
 import es.dmoral.toasty.Toasty;
 import okhttp3.Call;
 
@@ -45,7 +45,6 @@ public class LoginActivity extends AppCompatActivity {
 
         //先看有没有loginToken
         String loginToken = LoginTokenUtil.getLoginToken();
-        Log.e("tag", "LoginActivity loginToken " + loginToken + "");
         //如果有loginToken，跳转主页面
         if (loginToken != null && !loginToken.equals("")) {
             Intent intent = new Intent(this, MainActivity.class);
@@ -100,10 +99,11 @@ public class LoginActivity extends AppCompatActivity {
         btn_login.setEnabled(false);
         String loginName = et_loginName.getText().toString();
         String password = et_password.getText().toString();
+        String jpushRegistrationId = JPushInterface.getRegistrationID(this);
         Map<String, String> paramsMap = new HashMap<>();
         paramsMap.put("loginName", loginName);
         paramsMap.put("password", password);
-
+        paramsMap.put("jpushRegistrationId", jpushRegistrationId);
         HttpUtil.post("/user/login", paramsMap, new CallBackUtil.CallBackString() {
             @Override
             public void onFailure(Call call, Exception e) {

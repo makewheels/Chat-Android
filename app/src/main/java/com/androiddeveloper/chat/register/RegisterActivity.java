@@ -24,6 +24,7 @@ import com.androiddeveloper.chat.utils.http.HttpUtil;
 import java.util.HashMap;
 import java.util.Map;
 
+import cn.jpush.android.api.JPushInterface;
 import es.dmoral.toasty.Toasty;
 import okhttp3.Call;
 
@@ -63,10 +64,11 @@ public class RegisterActivity extends AppCompatActivity {
         btn_register.setEnabled(false);
         String loginName = et_loginName.getText().toString();
         String password = et_password.getText().toString();
+        String jpushRegistrationId = JPushInterface.getRegistrationID(this);
         Map<String, String> paramsMap = new HashMap<>();
         paramsMap.put("loginName", loginName);
         paramsMap.put("password", password);
-
+        paramsMap.put("jpushRegistrationId", jpushRegistrationId);
         HttpUtil.post("/user/register", paramsMap, new CallBackUtil.CallBackString() {
             @Override
             public void onFailure(Call call, Exception e) {

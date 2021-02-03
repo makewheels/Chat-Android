@@ -1,8 +1,9 @@
 package com.androiddeveloper.chat.main;
 
-import android.view.Gravity;
 import android.view.View;
 import android.widget.TextView;
+
+import com.androiddeveloper.chat.R;
 
 public class MessageFragment extends BaseFragment {
 
@@ -10,11 +11,10 @@ public class MessageFragment extends BaseFragment {
 
     @Override
     protected View initView() {
-        textView = new TextView(context);
-        textView.setText(MessageFragment.class.getName());
-        textView.setTextSize(20);
-        textView.setGravity(Gravity.CENTER);
-        return textView;
+        View view = View.inflate(context, R.layout.fragment_message, null);
+        textView = view.findViewById(R.id.textView);
+        textView.setText(System.currentTimeMillis() + "");
+        return view;
     }
 
     @Override

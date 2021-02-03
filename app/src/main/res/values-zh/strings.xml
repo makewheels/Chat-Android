@@ -6,4 +6,6 @@
     <string name="login_name">登录名</string>
     <string name="to_register">去注册</string>
     <string name="register_success">注册成功！</string>
+    <string name="message">消息</string>
+    <string name="settings">设置</string>
 </resources>

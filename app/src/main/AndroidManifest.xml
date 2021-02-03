@@ -39,8 +39,12 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".main.MainActivity" />
+        <activity
+            android:name=".main.MainActivity"
+            android:configChanges="orientation|screenSize|keyboardHidden" />
+
         <activity android:name=".register.RegisterActivity" />
+
         <!-- since 3.0.9 Required SDK 核心功能 -->
         <provider
             android:name=".jpush.DataProvider"

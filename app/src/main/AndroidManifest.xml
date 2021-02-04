@@ -32,6 +32,7 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.Chat">
+        <activity android:name=".searchperson.SearchPersonActivity"></activity>
         <activity android:name=".login.LoginActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -42,10 +43,7 @@
         <activity
             android:name=".main.MainActivity"
             android:configChanges="orientation|screenSize|keyboardHidden" />
-
-        <activity android:name=".register.RegisterActivity" />
-
-        <!-- since 3.0.9 Required SDK 核心功能 -->
+        <activity android:name=".register.RegisterActivity" /> <!-- since 3.0.9 Required SDK 核心功能 -->
         <provider
             android:name=".jpush.DataProvider"
             android:authorities="${JPUSH_PKGNAME}.DataProvider"

@@ -124,7 +124,6 @@ public class MainActivity extends AppCompatActivity {
 
             @Override
             public void onResponse(String response) {
-                Log.e("tag", response);
                 Result<Void> result
                         = JSON.parseObject(response,
                         new TypeReference<Result<Void>>(Result.class) {

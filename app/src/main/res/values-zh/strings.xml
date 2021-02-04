@@ -8,4 +8,7 @@
     <string name="register_success">注册成功！</string>
     <string name="message">消息</string>
     <string name="settings">设置</string>
+    <string name="search_person">搜人</string>
+    <string name="search">搜索</string>
+    <string name="please_input_person_login_name">请输入对方登录名</string>
 </resources>

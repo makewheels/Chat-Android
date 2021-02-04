@@ -11,4 +11,8 @@
     <string name="search_person">Search Person</string>
     <string name="search">Search</string>
     <string name="please_input_person_login_name">Please input person login name</string>
+    <string name="choose_to_start_conversation">Choose to start conversation</string>
+    <string name="start_conversation">Start conversation</string>
+    <string name="login_success">Login success!</string>
+    <string name="create_conversation_success">Create conversation success</string>
 </resources>

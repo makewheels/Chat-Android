@@ -3,7 +3,6 @@ package com.androiddeveloper.chat.main;
 import android.content.Intent;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
-import android.util.Log;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
 import android.widget.Toast;
@@ -44,9 +43,6 @@ public class MainActivity extends AppCompatActivity {
 
         initView();
 
-        Intent intent = getIntent();
-        String hello = intent.getStringExtra("data");
-
         checkLoginToken();
 
     }
@@ -56,8 +52,8 @@ public class MainActivity extends AppCompatActivity {
         rb_message = findViewById(R.id.rb_message);
         rb_settings = findViewById(R.id.rb_settings);
 
-        setBounds(R.drawable.tab_selector_message, rb_message);
-        setBounds(R.drawable.tab_selector_settings, rb_settings);
+        setBounds(R.xml.tab_selector_message, rb_message);
+        setBounds(R.xml.tab_selector_settings, rb_settings);
 
         initFragments();
 
@@ -88,7 +84,7 @@ public class MainActivity extends AppCompatActivity {
         if (!to.isAdded()) {
             if (from != null)
                 transaction.hide(from);
-            transaction.replace(R.id.fl_content, to);
+            transaction.add(R.id.fl_content, to);
         } else {
             if (from != null)
                 transaction.hide(from);

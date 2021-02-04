@@ -11,4 +11,8 @@
     <string name="search_person">搜人</string>
     <string name="search">搜索</string>
     <string name="please_input_person_login_name">请输入对方登录名</string>
+    <string name="choose_to_start_conversation">选个人，开唠</string>
+    <string name="start_conversation">创建会话</string>
+    <string name="login_success">登录成功！</string>
+    <string name="create_conversation_success">创建会话成功</string>
 </resources>

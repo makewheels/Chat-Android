@@ -135,6 +135,7 @@ public class LoginActivity extends AppCompatActivity {
                     SharedPreferencesUtil.putString(Constants.KEY_LOGIN_NAME, userInfoResponse.getLoginName());
                     SharedPreferencesUtil.putString(Constants.KEY_HEAD_IMAGE_URL, userInfoResponse.getHeadImageUrl());
                 }
+                Toasty.success(LoginActivity.this, R.string.login_success).show();
                 // 跳转到主页面
                 Intent intent = new Intent(LoginActivity.this, MainActivity.class);
                 intent.putExtra("data", response);

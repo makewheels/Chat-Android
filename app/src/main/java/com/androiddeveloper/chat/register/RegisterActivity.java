@@ -102,7 +102,7 @@ public class RegisterActivity extends AppCompatActivity {
                 }
                 //跳转到主界面
                 startActivity(new Intent(RegisterActivity.this, MainActivity.class));
-                Toasty.info(RegisterActivity.this, R.string.register_success,
+                Toasty.success(RegisterActivity.this, R.string.register_success,
                         Toasty.LENGTH_SHORT).show();
                 setResult(1);
                 finish();

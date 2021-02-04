@@ -17,8 +17,4 @@ public class SettingsFragment extends BaseFragment {
         return textView;
     }
 
-    @Override
-    protected void initData() {
-        super.initData();
-    }
 }

@@ -1,6 +1,7 @@
 package com.androiddeveloper.chat.main;
 
 import android.content.Context;
+import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
@@ -15,7 +16,7 @@ import com.bumptech.glide.Glide;
 import java.util.List;
 
 public class ConversationAdapter extends RecyclerView.Adapter<ConversationAdapter.MyViewHolder> {
-    private Context context;
+    private final Context context;
     private List<Conversation> conversationList;
 
     public ConversationAdapter(Context context, List<Conversation> conversationList) {
@@ -42,14 +43,17 @@ public class ConversationAdapter extends RecyclerView.Adapter<ConversationAdapte
         return conversationList.size();
     }
 
-    class MyViewHolder extends RecyclerView.ViewHolder {
-        private ImageView iv_head;
-        private TextView tv_nickName;
+    static class MyViewHolder extends RecyclerView.ViewHolder {
+        private final ImageView iv_head;
+        private final TextView tv_nickName;
 
         public MyViewHolder(@NonNull View itemView) {
             super(itemView);
             iv_head = itemView.findViewById(R.id.iv_head);
             tv_nickName = itemView.findViewById(R.id.tv_nickName);
+            itemView.setOnClickListener(v -> {
+                Log.e("tag",da);
+            });
         }
     }
 }

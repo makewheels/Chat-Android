@@ -6,6 +6,7 @@ import android.widget.Button;
 import android.widget.Toast;
 
 import androidx.annotation.Nullable;
+import androidx.recyclerview.widget.DividerItemDecoration;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -51,6 +52,7 @@ public class MessageFragment extends BaseFragment {
         LinearLayoutManager linearLayoutManager
                 = new LinearLayoutManager(context, RecyclerView.VERTICAL, false);
         rv_conversationList.setLayoutManager(linearLayoutManager);
+        rv_conversationList.addItemDecoration(new DividerItemDecoration(context, DividerItemDecoration.HORIZONTAL));
 
         loadConversation();
         return view;

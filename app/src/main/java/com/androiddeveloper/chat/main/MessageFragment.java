@@ -52,7 +52,8 @@ public class MessageFragment extends BaseFragment {
         LinearLayoutManager linearLayoutManager
                 = new LinearLayoutManager(context, RecyclerView.VERTICAL, false);
         rv_conversationList.setLayoutManager(linearLayoutManager);
-        rv_conversationList.addItemDecoration(new DividerItemDecoration(context, DividerItemDecoration.HORIZONTAL));
+        rv_conversationList.addItemDecoration(
+                new DividerItemDecoration(context, DividerItemDecoration.VERTICAL));
 
         loadConversation();
         return view;
@@ -100,6 +101,5 @@ public class MessageFragment extends BaseFragment {
             }
         });
     }
-
 
 }

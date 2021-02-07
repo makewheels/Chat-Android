@@ -1,7 +1,7 @@
 package com.androiddeveloper.chat.main;
 
 import android.content.Context;
-import android.util.Log;
+import android.content.Intent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
@@ -10,7 +10,9 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.alibaba.fastjson.JSON;
 import com.androiddeveloper.chat.R;
+import com.androiddeveloper.chat.dialogue.DialogueActivity;
 import com.bumptech.glide.Glide;
 
 import java.util.List;
@@ -43,7 +45,7 @@ public class ConversationAdapter extends RecyclerView.Adapter<ConversationAdapte
         return conversationList.size();
     }
 
-    static class MyViewHolder extends RecyclerView.ViewHolder {
+    class MyViewHolder extends RecyclerView.ViewHolder {
         private final ImageView iv_head;
         private final TextView tv_nickName;
 
@@ -52,8 +54,13 @@ public class ConversationAdapter extends RecyclerView.Adapter<ConversationAdapte
             iv_head = itemView.findViewById(R.id.iv_head);
             tv_nickName = itemView.findViewById(R.id.tv_nickName);
             itemView.setOnClickListener(v -> {
-                Log.e("tag",da);
+                int position = getLayoutPosition();
+                Intent intent = new Intent(context, DialogueActivity.class);
+                Conversation conversation = conversationList.get(position);
+                intent.putExtra("Conversation", JSON.toJSONString(conversation));
+                context.startActivity(intent);
             });
         }
     }
+
 }

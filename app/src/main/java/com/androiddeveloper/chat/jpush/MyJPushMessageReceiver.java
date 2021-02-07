@@ -9,11 +9,13 @@ import cn.jpush.android.api.JPushMessage;
 import cn.jpush.android.service.JPushMessageReceiver;
 
 public class MyJPushMessageReceiver extends JPushMessageReceiver {
+    private final JpushHandler jpushHandler = new JpushHandler();
 
     @Override
     public void onMessage(Context context, CustomMessage customMessage) {
         String message = customMessage.message;
         Log.e("tag", "MyJPushMessageReceiver onMessage " + message);
+        jpushHandler.handleMessage(message);
     }
 
     @Override

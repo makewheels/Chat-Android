@@ -32,6 +32,7 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.Chat">
+        <activity android:name=".dialogue.DialogueActivity"></activity>
         <activity android:name=".searchperson.SearchPersonActivity" />
         <activity android:name=".login.LoginActivity">
             <intent-filter>

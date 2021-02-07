@@ -15,4 +15,6 @@
     <string name="start_conversation">创建会话</string>
     <string name="login_success">登录成功！</string>
     <string name="create_conversation_success">创建会话成功</string>
+    <string name="nickname">昵称</string>
+    <string name="send">发送</string>
 </resources>

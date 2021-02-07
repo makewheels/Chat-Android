@@ -15,4 +15,6 @@
     <string name="start_conversation">Start conversation</string>
     <string name="login_success">Login success!</string>
     <string name="create_conversation_success">Create conversation success</string>
+    <string name="nickname">Nickname</string>
+    <string name="send">Send</string>
 </resources>

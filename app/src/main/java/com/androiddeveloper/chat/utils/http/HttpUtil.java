@@ -24,7 +24,11 @@ public class HttpUtil {
     }
 
     public static void post(String url, Map<String, String> paramsMap, CallBackUtil<String> callBack) {
-        url = Constants.SERVER + url;
+        if (url.startsWith("/")) {
+            url = Constants.SERVER + url;
+        } else {
+            url = Constants.SERVER + "/" + url;
+        }
         //如果有loginToken，放入header
         String loginToken = LoginTokenUtil.getLoginToken();
         if (loginToken != null) {

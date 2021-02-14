@@ -8,6 +8,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.alibaba.fastjson.JSON;
@@ -59,7 +60,11 @@ public class DialogueActivity extends AppCompatActivity {
         btn_send = findViewById(R.id.btn_send);
         et_input = findViewById(R.id.et_input);
 
+
         messageAdapter = new MessageAdapter(this, new ArrayList<>());
+        LinearLayoutManager linearLayoutManager
+                = new LinearLayoutManager(this, RecyclerView.VERTICAL, false);
+        rv_dialog.setLayoutManager(linearLayoutManager);
         rv_dialog.setAdapter(messageAdapter);
     }
 

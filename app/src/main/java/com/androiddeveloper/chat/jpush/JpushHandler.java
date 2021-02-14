@@ -14,15 +14,10 @@ import java.util.Map;
 import okhttp3.Call;
 
 public class JpushHandler {
-    public void handleMessage(String message) {
-        Map<String, String> map = new HashMap<>();
-        String[] split = message.split("&");
-        for (String each : split) {
-            String[] kv = each.split("=");
-            String key = kv[0];
-            String value = kv[1];
-            map.put(key, value);
-        }
+    public void handleMessage(String data) {
+        Map<String, String> map = JSON.parseObject(data,
+                new TypeReference<Map<String, String>>(Map.class) {
+                });
         String messageId = map.get("messageId");
         pullMessage(messageId);
     }

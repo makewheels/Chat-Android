@@ -48,7 +48,7 @@ public class MainActivity extends AppCompatActivity {
         initView();
 
         checkLoginToken();
-        getUserInfo();
+
 
     }
 
@@ -135,8 +135,12 @@ public class MainActivity extends AppCompatActivity {
                             "checkLoginToken onResponse " + result.getMessage(),
                             Toast.LENGTH_SHORT).show();
                     LoginTokenUtil.removeLoginToken();
-                    startActivity(new Intent(MainActivity.this, LoginActivity.class));
+                    Intent intent = new Intent(MainActivity.this, LoginActivity.class);
+                    startActivity(intent);
                     finish();
+                } else {
+                    //如果loginToken检查没问题，获取用户信息
+                    getUserInfo();
                 }
             }
         });

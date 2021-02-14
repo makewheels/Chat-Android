@@ -1,29 +1,45 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    tools:context=".dialogue.DialogueActivity">
+    tools:context=".main.message.dialog.DialogueActivity">
 
     <TextView
         android:id="@+id/tv_nickname"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:gravity="center"
-        android:text="@string/nickname" />
+        android:text="@string/nickname"
+        android:textColor="@android:color/holo_blue_dark"
+        android:textSize="25dp" />
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/rv_dialog"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_above="@+id/et_input"
+        android:layout_below="@id/tv_nickname" />
 
     <EditText
         android:id="@+id/et_input"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_above="@id/btn_send"
+        android:height="46dp"
+        android:hint="Input"
         android:inputType="textPersonName"
-        android:text="Name" />
+        android:textSize="22dp" />
 
     <Button
         android:id="@+id/btn_send"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_alignParentEnd="true"
+        android:layout_alignParentBottom="true"
+        android:layout_marginRight="50dp"
+        android:layout_marginBottom="30dp"
         android:text="@string/send" />
-</LinearLayout>
+</RelativeLayout>

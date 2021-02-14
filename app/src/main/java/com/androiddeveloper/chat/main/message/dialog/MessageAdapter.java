@@ -1,4 +1,4 @@
-package com.androiddeveloper.chat.main;
+package com.androiddeveloper.chat.main.message.dialog;
 
 import android.content.Context;
 import android.content.Intent;
@@ -10,20 +10,17 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.alibaba.fastjson.JSON;
 import com.androiddeveloper.chat.R;
-import com.androiddeveloper.chat.dialogue.DialogueActivity;
-import com.bumptech.glide.Glide;
 
 import java.util.List;
 
-public class ConversationAdapter extends RecyclerView.Adapter<ConversationAdapter.MyViewHolder> {
+public class MessageAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
     private final Context context;
-    private List<Conversation> conversationList;
+    private List<Message> messageList;
 
-    public ConversationAdapter(Context context, List<Conversation> conversationList) {
+    public MessageAdapter(Context context, List<Message> messageList) {
         this.context = context;
-        this.conversationList = conversationList;
+        this.messageList = messageList;
     }
 
     @NonNull
@@ -34,15 +31,13 @@ public class ConversationAdapter extends RecyclerView.Adapter<ConversationAdapte
     }
 
     @Override
-    public void onBindViewHolder(@NonNull MyViewHolder holder, int position) {
-        Conversation conversation = conversationList.get(position);
-        holder.tv_nickName.setText(conversation.getTitle());
-        Glide.with(context).load(conversation.getHeadImageUrl()).into(holder.iv_head);
+    public void onBindViewHolder(@NonNull RecyclerView.ViewHolder holder, int position) {
+
     }
 
     @Override
     public int getItemCount() {
-        return conversationList.size();
+        return messageList.size();
     }
 
     class MyViewHolder extends RecyclerView.ViewHolder {
@@ -55,10 +50,7 @@ public class ConversationAdapter extends RecyclerView.Adapter<ConversationAdapte
             tv_nickName = itemView.findViewById(R.id.tv_nickName);
             itemView.setOnClickListener(v -> {
                 int position = getLayoutPosition();
-                Intent intent = new Intent(context, DialogueActivity.class);
-                Conversation conversation = conversationList.get(position);
-                intent.putExtra("Conversation", JSON.toJSONString(conversation));
-                context.startActivity(intent);
+                Message message = messageList.get(position);
             });
         }
     }

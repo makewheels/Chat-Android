@@ -1,4 +1,4 @@
-package com.androiddeveloper.chat.main;
+package com.androiddeveloper.chat.main.message;
 
 import android.content.Intent;
 import android.view.View;
@@ -15,6 +15,9 @@ import com.alibaba.fastjson.TypeReference;
 import com.androiddeveloper.chat.R;
 import com.androiddeveloper.chat.common.Code;
 import com.androiddeveloper.chat.common.Result;
+import com.androiddeveloper.chat.main.BaseFragment;
+import com.androiddeveloper.chat.main.message.conversation.Conversation;
+import com.androiddeveloper.chat.main.message.conversation.ConversationAdapter;
 import com.androiddeveloper.chat.searchperson.SearchPersonActivity;
 import com.androiddeveloper.chat.utils.http.CallBackUtil;
 import com.androiddeveloper.chat.utils.http.HttpUtil;

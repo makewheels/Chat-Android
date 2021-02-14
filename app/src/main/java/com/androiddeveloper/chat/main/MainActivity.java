@@ -18,6 +18,8 @@ import com.androiddeveloper.chat.R;
 import com.androiddeveloper.chat.common.Code;
 import com.androiddeveloper.chat.common.Result;
 import com.androiddeveloper.chat.login.LoginActivity;
+import com.androiddeveloper.chat.main.message.MessageFragment;
+import com.androiddeveloper.chat.main.settings.SettingsFragment;
 import com.androiddeveloper.chat.utils.LoginTokenUtil;
 import com.androiddeveloper.chat.utils.http.CallBackUtil;
 import com.androiddeveloper.chat.utils.http.HttpUtil;

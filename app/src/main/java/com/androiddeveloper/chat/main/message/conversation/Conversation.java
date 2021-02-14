@@ -1,4 +1,4 @@
-package com.androiddeveloper.chat.main;
+package com.androiddeveloper.chat.main.message.conversation;
 
 import java.util.Date;
 

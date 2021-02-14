@@ -1,8 +1,10 @@
-package com.androiddeveloper.chat.main;
+package com.androiddeveloper.chat.main.settings;
 
 import android.view.Gravity;
 import android.view.View;
 import android.widget.TextView;
+
+import com.androiddeveloper.chat.main.BaseFragment;
 
 public class SettingsFragment extends BaseFragment {
 

@@ -1,4 +1,4 @@
-package com.androiddeveloper.chat;
+package com.androiddeveloper.chat.common;
 
 import android.app.Application;
 

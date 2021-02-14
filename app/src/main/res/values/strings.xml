@@ -6,7 +6,7 @@
     <string name="login_name">Login Name</string>
     <string name="to_register">To Register</string>
     <string name="register_success">Register Success!</string>
-    <string name="message">Message</string>
+    <string name="personMessage">Message</string>
     <string name="settings">Settings</string>
     <string name="search_person">Search Person</string>
     <string name="search">Search</string>

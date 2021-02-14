@@ -1,4 +1,4 @@
-package com.androiddeveloper.chat.main.message.dialog;
+package com.androiddeveloper.chat.main.message.dialogperson;
 
 import java.util.Date;
 

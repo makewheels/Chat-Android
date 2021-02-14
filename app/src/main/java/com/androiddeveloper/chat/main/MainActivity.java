@@ -18,9 +18,11 @@ import com.androiddeveloper.chat.R;
 import com.androiddeveloper.chat.common.Code;
 import com.androiddeveloper.chat.common.Result;
 import com.androiddeveloper.chat.login.LoginActivity;
+import com.androiddeveloper.chat.login.UserInfoResponse;
 import com.androiddeveloper.chat.main.message.MessageFragment;
 import com.androiddeveloper.chat.main.settings.SettingsFragment;
 import com.androiddeveloper.chat.utils.LoginTokenUtil;
+import com.androiddeveloper.chat.utils.MyInfoUtil;
 import com.androiddeveloper.chat.utils.http.CallBackUtil;
 import com.androiddeveloper.chat.utils.http.HttpUtil;
 
@@ -46,6 +48,7 @@ public class MainActivity extends AppCompatActivity {
         initView();
 
         checkLoginToken();
+        getUserInfo();
 
     }
 
@@ -135,6 +138,38 @@ public class MainActivity extends AppCompatActivity {
                     startActivity(new Intent(MainActivity.this, LoginActivity.class));
                     finish();
                 }
+            }
+        });
+    }
+
+    /**
+     * 获取用户信息，保存到全局范围内
+     */
+    private void getUserInfo() {
+        HttpUtil.post("/user/getUserInfo", null, new CallBackUtil.CallBackString() {
+            @Override
+            public void onFailure(Call call, Exception e) {
+                Toasty.error(MainActivity.this,
+                        "getUserInfo onFailure " + R.string.error_occurred_please_retry,
+                        Toast.LENGTH_SHORT).show();
+                e.printStackTrace();
+            }
+
+            @Override
+            public void onResponse(String response) {
+                Result<UserInfoResponse> result
+                        = JSON.parseObject(response,
+                        new TypeReference<Result<UserInfoResponse>>(Result.class) {
+                        });
+                UserInfoResponse userInfoResponse = result.getData();
+                MyInfoUtil.userId = userInfoResponse.getUserId();
+                MyInfoUtil.loginName = userInfoResponse.getLoginName();
+                MyInfoUtil.nickname = userInfoResponse.getNickname();
+                MyInfoUtil.headImageUrl = userInfoResponse.getHeadImageUrl();
+                MyInfoUtil.loginToken = userInfoResponse.getLoginToken();
+                MyInfoUtil.phone = userInfoResponse.getPhone();
+                MyInfoUtil.jpushRegistrationId = userInfoResponse.getJpushRegistrationId();
+                MyInfoUtil.createTime = userInfoResponse.getCreateTime();
             }
         });
     }

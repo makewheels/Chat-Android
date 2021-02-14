@@ -12,7 +12,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.alibaba.fastjson.JSON;
 import com.androiddeveloper.chat.R;
-import com.androiddeveloper.chat.main.message.dialogperson.DialogueActivity;
+import com.androiddeveloper.chat.main.message.dialogperson.DialogActivity;
 import com.bumptech.glide.Glide;
 
 import java.util.List;
@@ -55,7 +55,7 @@ public class ConversationAdapter extends RecyclerView.Adapter<ConversationAdapte
             tv_nickName = itemView.findViewById(R.id.tv_nickName);
             itemView.setOnClickListener(v -> {
                 int position = getLayoutPosition();
-                Intent intent = new Intent(context, DialogueActivity.class);
+                Intent intent = new Intent(context, DialogActivity.class);
                 Conversation conversation = conversationList.get(position);
                 intent.putExtra("Conversation", JSON.toJSONString(conversation));
                 context.startActivity(intent);

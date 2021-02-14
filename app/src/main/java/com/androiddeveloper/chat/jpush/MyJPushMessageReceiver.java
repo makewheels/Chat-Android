@@ -15,7 +15,7 @@ public class MyJPushMessageReceiver extends JPushMessageReceiver {
     public void onMessage(Context context, CustomMessage customMessage) {
         String message = customMessage.message;
         Log.e("tag", "MyJPushMessageReceiver onMessage " + message);
-        jpushHandler.handleMessage(message);
+        jpushHandler.handleMessage(context,message);
     }
 
     @Override

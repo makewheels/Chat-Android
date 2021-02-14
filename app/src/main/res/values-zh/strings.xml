@@ -17,4 +17,6 @@
     <string name="create_conversation_success">创建会话成功</string>
     <string name="nickname">昵称</string>
     <string name="send">发送</string>
+    <string name="please_input_content">请输入内容</string>
+    <string name="please_input_here">请在此输入</string>
 </resources>

@@ -24,5 +24,11 @@ public class PersonMessage {
 
     private String originalFileName;
 
+    private Boolean isArrive;
+    private Date arriveTime;
+
+    private Boolean isRead;
+    private Date readTime;
+
     private Date createTime;
 }

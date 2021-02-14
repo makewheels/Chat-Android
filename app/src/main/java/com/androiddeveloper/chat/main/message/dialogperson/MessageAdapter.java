@@ -1,6 +1,7 @@
 package com.androiddeveloper.chat.main.message.dialogperson;
 
 import android.content.Context;
+import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
@@ -61,14 +62,14 @@ public class MessageAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
         Boolean isSend = personMessage.getIsSend();
         if (type.equals(MessageType.TEXT)) {
             if (isSend)
-                return MessageType.RC_TYPE.TEXT_LEFT.hashCode();
-            else
                 return MessageType.RC_TYPE.TEXT_RIGHT.hashCode();
+            else
+                return MessageType.RC_TYPE.TEXT_LEFT.hashCode();
         } else if (type.equals(MessageType.IMAGE)) {
             if (isSend)
-                return MessageType.RC_TYPE.IMAGE_LEFT.hashCode();
-            else
                 return MessageType.RC_TYPE.IMAGE_RIGHT.hashCode();
+            else
+                return MessageType.RC_TYPE.IMAGE_LEFT.hashCode();
         } else {
             return 0;
         }
@@ -105,8 +106,8 @@ public class MessageAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
     }
 
     class TextLeftHolder extends RecyclerView.ViewHolder {
-        private final TextView tv_text;
-        private final ImageView iv_head;
+        TextView tv_text;
+        ImageView iv_head;
 
         public TextLeftHolder(@NonNull View itemView) {
             super(itemView);
@@ -116,8 +117,8 @@ public class MessageAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
     }
 
     class TextRightHolder extends RecyclerView.ViewHolder {
-        private final TextView tv_text;
-        private final ImageView iv_head;
+        TextView tv_text;
+        ImageView iv_head;
 
         public TextRightHolder(@NonNull View itemView) {
             super(itemView);

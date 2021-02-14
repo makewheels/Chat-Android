@@ -15,7 +15,7 @@
         android:gravity="center"
         android:text="@string/nickname"
         android:textColor="@android:color/holo_blue_dark"
-        android:textSize="25dp" />
+        android:textSize="34dp" />
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/rv_dialog"
@@ -30,11 +30,11 @@
         android:layout_height="wrap_content"
         android:layout_above="@id/btn_send"
         android:height="46dp"
-        android:hint="Input"
+        android:hint="@string/please_input_here"
         android:inputType="textPersonName"
-        android:paddingLeft="5dp"
+        android:paddingLeft="12dp"
         android:paddingRight="5dp"
-        android:textSize="22dp" />
+        android:textSize="30dp" />
 
     <Button
         android:id="@+id/btn_send"

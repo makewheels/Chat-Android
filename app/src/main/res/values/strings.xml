@@ -17,4 +17,6 @@
     <string name="create_conversation_success">Create conversation success</string>
     <string name="nickname">Nickname</string>
     <string name="send">Send</string>
+    <string name="please_input_content">Please input content</string>
+    <string name="please_input_here">Please input here</string>
 </resources>

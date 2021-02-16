@@ -1,11 +1,11 @@
 package com.androiddeveloper.chat.main.message.dialogperson;
 
+import android.Manifest;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Bundle;
-import android.util.Log;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
@@ -26,6 +26,7 @@ import com.androiddeveloper.chat.utils.MessageType;
 import com.androiddeveloper.chat.utils.MyInfoUtil;
 import com.androiddeveloper.chat.utils.http.CallBackUtil;
 import com.androiddeveloper.chat.utils.http.HttpUtil;
+import com.permissionx.guolindev.PermissionX;
 
 import org.apache.commons.lang3.StringUtils;
 
@@ -46,7 +47,6 @@ public class DialogActivity extends AppCompatActivity {
 
     private MessageAdapter messageAdapter;
 
-    public MessageReceiver messageReceiver;
     public static final String ACTION_RECEIVE_PERSON_MESSAGE = "com.gc.broadcast.receiver";
 
     @Override
@@ -62,6 +62,10 @@ public class DialogActivity extends AppCompatActivity {
         tv_nickname.setText(conversation.getTitle());
 
         addListeners();
+        PermissionX.init(this)
+                .permissions(Manifest.permission.RECORD_AUDIO)
+                .request((allGranted, grantedList, deniedList) -> {
+                });
     }
 
     private void initViews() {

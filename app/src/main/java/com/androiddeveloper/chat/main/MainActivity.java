@@ -1,14 +1,19 @@
 package com.androiddeveloper.chat.main;
 
 import android.content.Intent;
+import android.content.pm.PackageInfo;
+import android.content.pm.PackageManager;
 import android.graphics.drawable.Drawable;
+import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
 import android.widget.Toast;
 
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.content.res.ResourcesCompat;
+import androidx.core.content.FileProvider;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
@@ -26,7 +31,9 @@ import com.androiddeveloper.chat.utils.LoginTokenUtil;
 import com.androiddeveloper.chat.utils.MyInfoUtil;
 import com.androiddeveloper.chat.utils.http.CallBackUtil;
 import com.androiddeveloper.chat.utils.http.HttpUtil;
+import com.androiddeveloper.chat.utils.http.OkhttpUtil;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -41,6 +48,8 @@ public class MainActivity extends AppCompatActivity {
     private List<BaseFragment> fragmentList;
     private Fragment currentFragment;
 
+    private PackageInfo packageInfo;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -48,6 +57,7 @@ public class MainActivity extends AppCompatActivity {
 
         initView();
 
+        checkVersion();
         checkLoginToken();
 
     }
@@ -103,7 +113,7 @@ public class MainActivity extends AppCompatActivity {
      */
     private void setBounds(int drawableId, RadioButton radioButton) {
         //定义底部标签图片大小和位置
-        Drawable selector= getResources().getDrawable(drawableId);
+        Drawable selector = getResources().getDrawable(drawableId);
         //当这个图片被绘制时，给他绑定一个矩形 ltrb规定这个矩形  (这里的长和宽写死了 自己可以可以修改成 形参传入)
         int size = 100;
         selector.setBounds(0, 0, size, size);
@@ -111,6 +121,107 @@ public class MainActivity extends AppCompatActivity {
         radioButton.setCompoundDrawables(null, selector, null, null);
     }
 
+
+    private void checkVersion() {
+        HttpUtil.post("/app/getLatestInfo", null, new CallBackUtil.CallBackString() {
+            @Override
+            public void onFailure(Call call, Exception e) {
+                Toasty.error(MainActivity.this,
+                        "/app/getLatestInfo onFailure " + R.string.error_occurred_please_retry,
+                        Toast.LENGTH_SHORT).show();
+                e.printStackTrace();
+            }
+
+            @Override
+            public void onResponse(String response) {
+                Result<LatestInfoResponse> result
+                        = JSON.parseObject(response,
+                        new TypeReference<Result<LatestInfoResponse>>(Result.class) {
+                        });
+                if (result.getCode() != Code.SUCCESS)
+                    return;
+                //和我现在的版本号对比
+                LatestInfoResponse latestInfoResponse = result.getData();
+                try {
+                    packageInfo = getPackageManager().getPackageInfo(getPackageName(), 0);
+                } catch (PackageManager.NameNotFoundException e) {
+                    e.printStackTrace();
+                }
+                //如果现在的版本是最新版
+                if (packageInfo.versionCode == latestInfoResponse.getVersionCode())
+                    return;
+                //如果小于最新版，那就需要提示更新了
+                if (packageInfo.versionCode < latestInfoResponse.getVersionCode()) {
+                    promptUpdate(latestInfoResponse);
+                }
+                //如果大于最新版也是什么都不做
+            }
+        });
+    }
+
+    /**
+     * 提示更新
+     */
+    private void promptUpdate(LatestInfoResponse latestInfoResponse) {
+        //拼接描述信息
+        String message = packageInfo.versionName + " > " + latestInfoResponse.getVersionName();
+        String description = latestInfoResponse.getDescription();
+        if (description != null)
+            message += "\n" + description;
+
+        //如果不是强制更新
+        if (!latestInfoResponse.getIsForceUpdate()) {
+            new AlertDialog.Builder(this)
+                    .setTitle(R.string.please_update)
+                    .setMessage(message)
+                    .setPositiveButton(R.string.yes, (dialogInterface, i) ->
+                            runUpdate(latestInfoResponse)
+                    )
+                    .setNegativeButton(R.string.no, null)
+                    .create().show();
+        } else {
+            //如果是强制更新
+            new AlertDialog.Builder(this)
+                    .setTitle(R.string.please_update)
+                    .setMessage(message)
+                    .setPositiveButton(R.string.yes, (dialogInterface, i) ->
+                            runUpdate(latestInfoResponse)
+                    )
+                    .setCancelable(false)
+                    .create().show();
+        }
+    }
+
+    /**
+     * 执行更新
+     *
+     * @param latestInfoResponse
+     */
+    private void runUpdate(LatestInfoResponse latestInfoResponse) {
+        File apkFile = new File(getCacheDir().getPath()
+                + "/apk/update-" + latestInfoResponse.getVersionName() + ".apk");
+        OkhttpUtil.downloadFile(latestInfoResponse.getApkDownloadUrl(),
+                new CallBackUtil.CallBackFile(apkFile.getParent(), apkFile.getName()) {
+                    @Override
+                    public void onFailure(Call call, Exception e) {
+                    }
+
+                    @Override
+                    public void onResponse(File response) {
+                        Intent intent = new Intent(Intent.ACTION_VIEW);
+                        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+                            intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+                            Uri uri = FileProvider.getUriForFile(MainActivity.this,
+                                    packageInfo.packageName + ".fileprovider", apkFile);
+                            intent.setDataAndType(uri, "application/vnd.android.package-archive");
+                        } else {
+                            intent.setDataAndType(Uri.fromFile(apkFile), "application/vnd.android.package-archive");
+                        }
+                        startActivity(intent);
+                    }
+                });
+    }
 
     private void checkLoginToken() {
         HttpUtil.post("/user/checkLoginToken", null, new CallBackUtil.CallBackString() {

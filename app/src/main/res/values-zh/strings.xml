@@ -22,4 +22,7 @@
     <string name="permission_denied_record_audio">权限被拒：录音</string>
     <string name="audio">语音</string>
     <string name="image">图片</string>
+    <string name="please_update">请更新</string>
+    <string name="yes">是</string>
+    <string name="no">否</string>
 </resources>

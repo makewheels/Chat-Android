@@ -22,4 +22,7 @@
     <string name="permission_denied_record_audio">Permission denied: Record audio</string>
     <string name="audio">Audio</string>
     <string name="image">Image</string>
+    <string name="please_update">Please update</string>
+    <string name="yes">Yes</string>
+    <string name="no">No</string>
 </resources>

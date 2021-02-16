@@ -23,6 +23,8 @@ import com.androiddeveloper.chat.utils.SharedPreferencesUtil;
 import com.androiddeveloper.chat.utils.http.CallBackUtil;
 import com.androiddeveloper.chat.utils.http.HttpUtil;
 
+import org.apache.commons.lang3.StringUtils;
+
 import java.util.HashMap;
 import java.util.Map;
 
@@ -46,7 +48,7 @@ public class LoginActivity extends AppCompatActivity {
         //先看有没有loginToken
         String loginToken = LoginTokenUtil.getLoginToken();
         //如果有loginToken，跳转主页面
-        if (loginToken != null && !loginToken.equals("")) {
+        if (StringUtils.isNotEmpty(loginToken)) {
             Intent intent = new Intent(this, MainActivity.class);
             startActivity(intent);
             finish();

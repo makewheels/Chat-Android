@@ -7,6 +7,7 @@
         android:protectionLevel="signature" />
 
     <uses-permission android:name="android.permission.RECORD_AUDIO" />
+    <uses-permission android:name="android.permission.REQUEST_INSTALL_PACKAGES" />
 
     <uses-permission android:name="${JPUSH_PKGNAME}.permission.JPUSH_MESSAGE" />
     <uses-permission android:name="android.permission.RECEIVE_USER_PRESENT" />
@@ -44,9 +45,19 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".main.main.MainActivity"
+            android:name=".main.MainActivity"
             android:configChanges="orientation|screenSize|keyboardHidden" />
         <activity android:name=".register.RegisterActivity" /> <!-- since 3.0.9 Required SDK 核心功能 -->
+
+        <provider
+            android:name="androidx.core.content.FileProvider"
+            android:authorities="com.androiddeveloper.chat.fileprovider"
+            android:exported="false"
+            android:grantUriPermissions="true">
+            <meta-data
+                android:name="android.support.FILE_PROVIDER_PATHS"
+                android:resource="@xml/file_paths" />
+        </provider>
         <provider
             android:name=".jpush.DataProvider"
             android:authorities="${JPUSH_PKGNAME}.DataProvider"

@@ -42,6 +42,11 @@ public class DialogActivity extends AppCompatActivity {
 
     private TextView tv_nickname;
     private RecyclerView rv_dialog;
+
+    private Button btn_audio;
+    private Button btn_image;
+
+
     private EditText et_input;
     private Button btn_send;
 
@@ -62,10 +67,6 @@ public class DialogActivity extends AppCompatActivity {
         tv_nickname.setText(conversation.getTitle());
 
         addListeners();
-        PermissionX.init(this)
-                .permissions(Manifest.permission.RECORD_AUDIO)
-                .request((allGranted, grantedList, deniedList) -> {
-                });
     }
 
     private void initViews() {
@@ -73,6 +74,8 @@ public class DialogActivity extends AppCompatActivity {
         rv_dialog = findViewById(R.id.rv_dialog);
         btn_send = findViewById(R.id.btn_send);
         et_input = findViewById(R.id.et_input);
+        btn_audio = findViewById(R.id.btn_audio);
+        btn_image = findViewById(R.id.btn_image);
 
         messageAdapter = new MessageAdapter(this, new ArrayList<>());
         LinearLayoutManager linearLayoutManager
@@ -80,16 +83,23 @@ public class DialogActivity extends AppCompatActivity {
         rv_dialog.setLayoutManager(linearLayoutManager);
         rv_dialog.setAdapter(messageAdapter);
 
+        //收到推送消息的，广播
         IntentFilter filter = new IntentFilter();
         filter.addAction(ACTION_RECEIVE_PERSON_MESSAGE);
         registerReceiver(new MessageReceiver(), filter);
     }
 
+    /**
+     * 监听收到推送消息的广播
+     */
     public class MessageReceiver extends BroadcastReceiver {
         @Override
         public void onReceive(Context context, Intent intent) {
-            if (intent.getAction().equals(ACTION_RECEIVE_PERSON_MESSAGE)) {
+            String action = intent.getAction();
+            //收到人的消息
+            if (action.equals(ACTION_RECEIVE_PERSON_MESSAGE)) {
                 String messageId = intent.getStringExtra("messageId");
+                //拉取人的消息
                 pullPersonMessage(messageId);
             }
         }
@@ -148,6 +158,31 @@ public class DialogActivity extends AppCompatActivity {
                 }
             });
         });
+
+        //语音按钮
+        btn_audio.setOnClickListener(v -> {
+            //检查权限
+            PermissionX.init(this)
+                    .permissions(Manifest.permission.RECORD_AUDIO)
+                    .request((allGranted, grantedList, deniedList) -> {
+                        if (!allGranted) {
+                            Toasty.warning(DialogActivity.this, R.string.permission_denied_record_audio,
+                                    Toast.LENGTH_SHORT).show();
+                            return;
+                        }
+                        sendAudio();
+                    });
+        });
+
+        //图片按钮
+        btn_image.setOnClickListener(v -> {
+
+        });
+    }
+
+    //检查权限后，发语音
+    private void sendAudio() {
+
     }
 
     public void addMessage(PersonMessage personMessage) {
@@ -169,6 +204,9 @@ public class DialogActivity extends AppCompatActivity {
         HttpUtil.post("/message/person/pullByMessageId", paramsMap, new CallBackUtil.CallBackString() {
             @Override
             public void onFailure(Call call, Exception e) {
+                Toasty.error(DialogActivity.this,
+                        "/message/person/pullByMessageId onFailure " + R.string.error_occurred_please_retry,
+                        Toast.LENGTH_SHORT).show();
                 e.printStackTrace();
             }
 
@@ -189,7 +227,10 @@ public class DialogActivity extends AppCompatActivity {
                 personMessage.setMessageType(MessageType.TEXT);
                 personMessage.setContent(data.getContent());
                 personMessage.setCreateTime(data.getCreateTime());
+                //TODO 这里应该有一个判断，如果打开了这个conversation，那就添加到界面上
+                //TODO 写入数据库
                 addMessage(personMessage);
+                //TODO 其实这里还应该干一件事，上报已达
             }
         });
     }

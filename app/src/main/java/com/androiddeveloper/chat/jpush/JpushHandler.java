@@ -2,23 +2,15 @@ package com.androiddeveloper.chat.jpush;
 
 import android.content.Context;
 import android.content.Intent;
-import android.util.Log;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.TypeReference;
-import com.androiddeveloper.chat.common.Result;
-import com.androiddeveloper.chat.main.MainActivity;
 import com.androiddeveloper.chat.main.message.dialogperson.DialogActivity;
 import com.androiddeveloper.chat.utils.Constants;
-import com.androiddeveloper.chat.utils.http.CallBackUtil;
-import com.androiddeveloper.chat.utils.http.HttpUtil;
 
 import org.apache.commons.lang3.StringUtils;
 
-import java.util.HashMap;
 import java.util.Map;
-
-import okhttp3.Call;
 
 public class JpushHandler {
     public void handleMessage(Context context, String data) {

@@ -44,7 +44,7 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".main.MainActivity"
+            android:name=".main.main.MainActivity"
             android:configChanges="orientation|screenSize|keyboardHidden" />
         <activity android:name=".register.RegisterActivity" /> <!-- since 3.0.9 Required SDK 核心功能 -->
         <provider

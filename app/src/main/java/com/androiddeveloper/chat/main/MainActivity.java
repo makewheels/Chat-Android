@@ -50,7 +50,6 @@ public class MainActivity extends AppCompatActivity {
 
         checkLoginToken();
 
-
     }
 
     private void initView() {

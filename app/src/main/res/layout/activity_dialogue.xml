@@ -5,7 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    tools:context=".main.personMessage.dialogperson.DialogueActivity">
+    tools:context=".main.message.dialogperson.DialogActivity">
 
     <TextView
         android:id="@+id/tv_nickname"
@@ -21,19 +21,42 @@
         android:id="@+id/rv_dialog"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_above="@+id/et_input"
+        android:layout_above="@id/relative_tool_buttons"
         android:layout_below="@id/tv_nickname" />
+
+    <RelativeLayout
+        android:id="@+id/relative_tool_buttons"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_above="@id/et_input"
+        android:layout_marginTop="10dp"
+        android:layout_marginBottom="10dp">
+
+        <Button
+            android:id="@+id/btn_audio"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="35dp"
+            android:text="@string/audio" />
+
+        <Button
+            android:id="@+id/btn_image"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="25dp"
+            android:layout_toEndOf="@id/btn_audio"
+            android:text="@string/image" />
+    </RelativeLayout>
 
     <EditText
         android:id="@+id/et_input"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_above="@id/btn_send"
-        android:height="46dp"
         android:hint="@string/please_input_here"
-        android:inputType="textPersonName"
-        android:paddingLeft="12dp"
-        android:paddingRight="5dp"
+        android:inputType="textMultiLine"
+        android:maxLines="4"
+        android:padding="12dp"
         android:textSize="30dp" />
 
     <Button
@@ -42,7 +65,7 @@
         android:layout_height="wrap_content"
         android:layout_alignParentEnd="true"
         android:layout_alignParentBottom="true"
-        android:layout_marginRight="50dp"
+        android:layout_marginEnd="50dp"
         android:layout_marginBottom="20dp"
         android:text="@string/send" />
 </RelativeLayout>

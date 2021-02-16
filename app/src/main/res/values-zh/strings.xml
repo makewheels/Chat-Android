@@ -14,9 +14,12 @@
     <string name="choose_to_start_conversation">选个人，开唠</string>
     <string name="start_conversation">创建会话</string>
     <string name="login_success">登录成功！</string>
-    <string name="create_conversation_success">创建会话成功</string>
+    <string name="create_conversation_success">创建会话成功！</string>
     <string name="nickname">昵称</string>
     <string name="send">发送</string>
     <string name="please_input_content">请输入内容</string>
     <string name="please_input_here">请在此输入</string>
+    <string name="permission_denied_record_audio">权限被拒：录音</string>
+    <string name="audio">语音</string>
+    <string name="image">图片</string>
 </resources>

@@ -8,6 +8,7 @@ import android.widget.RadioGroup;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.content.res.ResourcesCompat;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
@@ -98,13 +99,12 @@ public class MainActivity extends AppCompatActivity {
         transaction.commit();
     }
 
-
     /**
      * 解决图标缩放显示不全问题
      */
     private void setBounds(int drawableId, RadioButton radioButton) {
         //定义底部标签图片大小和位置
-        Drawable selector = getDrawable(drawableId);
+        Drawable selector= getResources().getDrawable(drawableId);
         //当这个图片被绘制时，给他绑定一个矩形 ltrb规定这个矩形  (这里的长和宽写死了 自己可以可以修改成 形参传入)
         int size = 100;
         selector.setBounds(0, 0, size, size);
@@ -118,7 +118,7 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onFailure(Call call, Exception e) {
                 Toasty.error(MainActivity.this,
-                        "checkLoginToken onFailure " + R.string.error_occurred_please_retry,
+                        "/user/checkLoginToken onFailure " + R.string.error_occurred_please_retry,
                         Toast.LENGTH_SHORT).show();
                 e.printStackTrace();
             }

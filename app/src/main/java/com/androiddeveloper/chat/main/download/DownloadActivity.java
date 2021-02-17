@@ -9,7 +9,6 @@ import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
-import android.util.Log;
 import android.widget.ProgressBar;
 
 import com.alibaba.fastjson.JSON;
@@ -57,7 +56,7 @@ public class DownloadActivity extends AppCompatActivity {
      * 执行更新
      */
     private void runUpdate() {
-        //文件名举例  1-1.0.apk
+        //    /data/user/0/com.androiddeveloper.chat/cache/apk/2-1.0.1.apk
         File apkFile = new File(FilePathUtil.getApkDownloadFolder(this) + "/"
                 + latestInfoResponse.getVersionCode() + "-" + latestInfoResponse.getVersionName() + ".apk");
         OkhttpUtil.downloadFile(latestInfoResponse.getApkDownloadUrl(),

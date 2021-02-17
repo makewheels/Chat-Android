@@ -31,6 +31,7 @@ import com.androiddeveloper.chat.utils.MyInfoUtil;
 import com.androiddeveloper.chat.utils.http.CallBackUtil;
 import com.androiddeveloper.chat.utils.http.HttpUtil;
 
+import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
 
@@ -172,6 +173,8 @@ public class MainActivity extends AppCompatActivity {
     private void deleteApk() {
         File folder = new File(FilePathUtil.getApkDownloadFolder(this));
         File[] files = folder.listFiles();
+        if (files == null)
+            return;
         for (File file : files) {
             String baseName = FilenameUtils.getBaseName(file.getName());
             int versionCode;

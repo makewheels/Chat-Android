@@ -1,2 +1,10 @@
+include ':trtccallingdemo'
+include ':trtcmeetingdemo'
+include ':audioeffectsettingkit'
+include ':beautysettingkit'
+include ':trtcvoiceroomdemo'
+include ':trtcliveroomdemo'
+include ':login'
+include ':debug'
 include ':app'
 rootProject.name = "Chat"

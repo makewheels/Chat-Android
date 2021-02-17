@@ -8,7 +8,7 @@ import lombok.Data;
  * 我的信息
  */
 @Data
-public class MyInfoUtil {
+public class UserUtil {
     public static String userId;
 
     public static String loginName;

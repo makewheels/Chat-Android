@@ -5,12 +5,15 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.graphics.drawable.Drawable;
 import android.os.Bundle;
+import android.util.Log;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -23,14 +26,19 @@ import com.androiddeveloper.chat.common.Result;
 import com.androiddeveloper.chat.jpush.PullMessageResponse;
 import com.androiddeveloper.chat.main.message.conversation.Conversation;
 import com.androiddeveloper.chat.utils.MessageType;
-import com.androiddeveloper.chat.utils.MyInfoUtil;
+import com.androiddeveloper.chat.utils.UserUtil;
 import com.androiddeveloper.chat.utils.http.CallBackUtil;
 import com.androiddeveloper.chat.utils.http.HttpUtil;
+import com.huawei.multimedia.liteav.audiokit.utils.Constant;
 import com.permissionx.guolindev.PermissionX;
+import com.tencent.liteav.beauty.TXBeautyManager;
+import com.tencent.trtc.TRTCCloud;
+import com.tencent.trtc.TRTCCloudDef;
 
 import org.apache.commons.lang3.StringUtils;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -38,6 +46,8 @@ import es.dmoral.toasty.Toasty;
 import okhttp3.Call;
 
 public class DialogActivity extends AppCompatActivity {
+    private static final int RC_CHOOSE_PHOTO = 0;
+
     private Conversation conversation;
 
     private TextView tv_nickname;
@@ -46,13 +56,14 @@ public class DialogActivity extends AppCompatActivity {
     private Button btn_audio;
     private Button btn_image;
 
-
     private EditText et_input;
     private Button btn_send;
 
     private MessageAdapter messageAdapter;
 
     public static final String ACTION_RECEIVE_PERSON_MESSAGE = "com.gc.broadcast.receiver";
+
+    private TRTCCloud mTRTCCloud;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -67,6 +78,8 @@ public class DialogActivity extends AppCompatActivity {
         tv_nickname.setText(conversation.getTitle());
 
         addListeners();
+
+
     }
 
     private void initViews() {
@@ -83,10 +96,21 @@ public class DialogActivity extends AppCompatActivity {
         rv_dialog.setLayoutManager(linearLayoutManager);
         rv_dialog.setAdapter(messageAdapter);
 
+        loadButtonLeftIcon(R.drawable.microphone, btn_audio);
+        loadButtonLeftIcon(R.drawable.image, btn_image);
+        loadButtonLeftIcon(R.drawable.send, btn_send);
+
         //收到推送消息的，广播
         IntentFilter filter = new IntentFilter();
         filter.addAction(ACTION_RECEIVE_PERSON_MESSAGE);
         registerReceiver(new MessageReceiver(), filter);
+    }
+
+    //加载图片左边的图标
+    private void loadButtonLeftIcon(int id, Button button) {
+        Drawable drawable = getResources().getDrawable(id);
+        drawable.setBounds(0, 0, 64, 64);
+        button.setCompoundDrawables(drawable, null, null, null);
     }
 
     /**
@@ -149,7 +173,7 @@ public class DialogActivity extends AppCompatActivity {
                     personMessage.setConversationId(sendMessageResponse.getConversationId());
                     personMessage.setFromUserId(sendMessageResponse.getFromUserId());
                     personMessage.setToUserId(sendMessageResponse.getToUserId());
-                    personMessage.setSenderHeadUrl(MyInfoUtil.headImageUrl);
+                    personMessage.setSenderHeadUrl(UserUtil.headImageUrl);
                     personMessage.setIsSend(true);
                     personMessage.setMessageType(MessageType.TEXT);
                     personMessage.setContent(input);
@@ -176,7 +200,7 @@ public class DialogActivity extends AppCompatActivity {
 
         //图片按钮
         btn_image.setOnClickListener(v -> {
-
+            pickImage();
         });
     }
 
@@ -184,6 +208,11 @@ public class DialogActivity extends AppCompatActivity {
     private void sendAudio() {
 
     }
+
+    //从相册中选图片
+    private void pickImage() {
+    }
+
 
     public void addMessage(PersonMessage personMessage) {
         //添加到dialog里
@@ -234,4 +263,15 @@ public class DialogActivity extends AppCompatActivity {
             }
         });
     }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (resultCode != RESULT_OK)
+            return;
+        if (requestCode == RC_CHOOSE_PHOTO) {
+        }
+
+    }
+
 }

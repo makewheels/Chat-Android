@@ -8,6 +8,8 @@ public class Constants {
     public static final String KEY_LOGIN_NAME = "loginName";
     public static final String KEY_HEAD_IMAGE_URL = "headImageUrl";
 
+    public static final String APPLICATION_NAME = "chat";
+
     public static class CONVERSATION {
         public static final String TYPE_PERSON = "person";
         public static final String TYPE_GROUP = "group";

@@ -27,11 +27,10 @@ import com.androiddeveloper.chat.main.message.MessageFragment;
 import com.androiddeveloper.chat.main.settings.SettingsFragment;
 import com.androiddeveloper.chat.utils.FilePathUtil;
 import com.androiddeveloper.chat.utils.LoginTokenUtil;
-import com.androiddeveloper.chat.utils.MyInfoUtil;
+import com.androiddeveloper.chat.utils.UserUtil;
 import com.androiddeveloper.chat.utils.http.CallBackUtil;
 import com.androiddeveloper.chat.utils.http.HttpUtil;
 
-import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
 
@@ -295,14 +294,14 @@ public class MainActivity extends AppCompatActivity {
                         new TypeReference<Result<UserInfoResponse>>(Result.class) {
                         });
                 UserInfoResponse userInfoResponse = result.getData();
-                MyInfoUtil.userId = userInfoResponse.getUserId();
-                MyInfoUtil.loginName = userInfoResponse.getLoginName();
-                MyInfoUtil.nickname = userInfoResponse.getNickname();
-                MyInfoUtil.headImageUrl = userInfoResponse.getHeadImageUrl();
-                MyInfoUtil.loginToken = userInfoResponse.getLoginToken();
-                MyInfoUtil.phone = userInfoResponse.getPhone();
-                MyInfoUtil.jpushRegistrationId = userInfoResponse.getJpushRegistrationId();
-                MyInfoUtil.createTime = userInfoResponse.getCreateTime();
+                UserUtil.userId = userInfoResponse.getUserId();
+                UserUtil.loginName = userInfoResponse.getLoginName();
+                UserUtil.nickname = userInfoResponse.getNickname();
+                UserUtil.headImageUrl = userInfoResponse.getHeadImageUrl();
+                UserUtil.loginToken = userInfoResponse.getLoginToken();
+                UserUtil.phone = userInfoResponse.getPhone();
+                UserUtil.jpushRegistrationId = userInfoResponse.getJpushRegistrationId();
+                UserUtil.createTime = userInfoResponse.getCreateTime();
             }
         });
     }

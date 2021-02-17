@@ -31,6 +31,12 @@ android {
         release {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+
+            android.applicationVariants.all { variant ->
+                variant.outputs.all { output ->
+                    outputFileName = "Chat-" + defaultConfig.versionCode + "-" + defaultConfig.versionName + ".apk"
+                }
+            }
         }
     }
     compileOptions {
@@ -42,6 +48,14 @@ android {
         main {
             jniLibs.srcDirs = ['libs']
         }
+    }
+
+    packagingOptions {
+        pickFirst '**/libc++_shared.so'
+        doNotStrip "*/armeabi/libYTCommon.so"
+        doNotStrip "*/armeabi-v7a/libYTCommon.so"
+        doNotStrip "*/x86/libYTCommon.so"
+        doNotStrip "*/arm64-v8a/libYTCommon.so"
     }
 }
 
@@ -56,6 +70,7 @@ dependencies {
     implementation 'cn.jiguang.sdk:jcore:2.6.0'
     implementation 'cn.jiguang.sdk:jpush:3.9.1'
 
+    //OKhttp不能用最新版，为了兼容android低版本
     implementation 'com.squareup.okhttp3:okhttp:3.12.0'
     implementation 'com.github.GrenderG:Toasty:1.5.0'
 
@@ -77,5 +92,9 @@ dependencies {
 
     implementation 'com.android.support:multidex:1.0.3'
     implementation 'com.permissionx.guolindev:permissionx:1.4.0'
+
+    implementation 'com.tencent.liteav:LiteAVSDK_TRTC:7.9.21017'
+    implementation 'com.tencent.imsdk:imsdk:5.0.9'
+    implementation 'com.google.code.gson:gson:2.8.5'
 
 }

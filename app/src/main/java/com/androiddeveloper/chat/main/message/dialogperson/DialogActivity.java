@@ -207,12 +207,11 @@ public class DialogActivity extends AppCompatActivity {
     }
 
     boolean isRecording = true;
+    AudioRecord audioRecord;
 
     //开始录音
     private void sendAudio() {
-        if (isRecording)
-            isRecording = false;
-        int frequency = 48000;
+        int frequency = 16000;
         //格式
         int channelConfiguration = AudioFormat.CHANNEL_IN_MONO;
         //16Bit
@@ -224,7 +223,7 @@ public class DialogActivity extends AppCompatActivity {
             BufferedOutputStream bos = new BufferedOutputStream(os);
             DataOutputStream dos = new DataOutputStream(bos);
             int bufferSize = AudioRecord.getMinBufferSize(frequency, channelConfiguration, audioEncoding);
-            AudioRecord audioRecord = new AudioRecord(MediaRecorder.AudioSource.MIC,
+            audioRecord = new AudioRecord(MediaRecorder.AudioSource.MIC,
                     frequency, channelConfiguration, audioEncoding, bufferSize);
             short[] buffer = new short[bufferSize];
             audioRecord.startRecording();
@@ -243,6 +242,7 @@ public class DialogActivity extends AppCompatActivity {
 
     //从相册中选图片
     private void pickImage() {
+        isRecording = false;
     }
 
 

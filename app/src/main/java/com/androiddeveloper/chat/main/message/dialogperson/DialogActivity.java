@@ -6,7 +6,12 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.graphics.drawable.Drawable;
+import android.media.AudioFormat;
+import android.media.AudioRecord;
+import android.media.MediaRecorder;
 import android.os.Bundle;
+import android.os.Environment;
+import android.util.Log;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
@@ -32,6 +37,12 @@ import com.permissionx.guolindev.PermissionX;
 
 import org.apache.commons.lang3.StringUtils;
 
+import java.io.BufferedOutputStream;
+import java.io.DataOutputStream;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
@@ -70,7 +81,6 @@ public class DialogActivity extends AppCompatActivity {
         tv_nickname.setText(conversation.getTitle());
 
         addListeners();
-
 
     }
 
@@ -196,9 +206,39 @@ public class DialogActivity extends AppCompatActivity {
         });
     }
 
-    //检查权限后，发语音
-    private void sendAudio() {
+    boolean isRecording = true;
 
+    //开始录音
+    private void sendAudio() {
+        if (isRecording)
+            isRecording = false;
+        int frequency = 48000;
+        //格式
+        int channelConfiguration = AudioFormat.CHANNEL_IN_MONO;
+        //16Bit
+        int audioEncoding = AudioFormat.ENCODING_PCM_16BIT;
+        //生成PCM文件
+        File file = new File(getFilesDir().getPath() + "/" + System.currentTimeMillis() + ".pcm");
+        try {
+            OutputStream os = new FileOutputStream(file);
+            BufferedOutputStream bos = new BufferedOutputStream(os);
+            DataOutputStream dos = new DataOutputStream(bos);
+            int bufferSize = AudioRecord.getMinBufferSize(frequency, channelConfiguration, audioEncoding);
+            AudioRecord audioRecord = new AudioRecord(MediaRecorder.AudioSource.MIC,
+                    frequency, channelConfiguration, audioEncoding, bufferSize);
+            short[] buffer = new short[bufferSize];
+            audioRecord.startRecording();
+            while (isRecording) {
+                int bufferReadResult = audioRecord.read(buffer, 0, bufferSize);
+                for (int i = 0; i < bufferReadResult; i++) {
+                    dos.writeShort(buffer[i]);
+                }
+            }
+            audioRecord.stop();
+            dos.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     //从相册中选图片

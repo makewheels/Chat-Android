@@ -4,8 +4,6 @@ import android.content.Intent;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.graphics.drawable.Drawable;
-import android.net.Uri;
-import android.os.Build;
 import android.os.Bundle;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
@@ -13,7 +11,6 @@ import android.widget.Toast;
 
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.content.FileProvider;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
@@ -25,13 +22,17 @@ import com.androiddeveloper.chat.common.Code;
 import com.androiddeveloper.chat.common.Result;
 import com.androiddeveloper.chat.login.LoginActivity;
 import com.androiddeveloper.chat.login.UserInfoResponse;
+import com.androiddeveloper.chat.main.download.DownloadActivity;
 import com.androiddeveloper.chat.main.message.MessageFragment;
 import com.androiddeveloper.chat.main.settings.SettingsFragment;
+import com.androiddeveloper.chat.utils.FilePathUtil;
 import com.androiddeveloper.chat.utils.LoginTokenUtil;
 import com.androiddeveloper.chat.utils.MyInfoUtil;
 import com.androiddeveloper.chat.utils.http.CallBackUtil;
 import com.androiddeveloper.chat.utils.http.HttpUtil;
-import com.androiddeveloper.chat.utils.http.OkhttpUtil;
+
+import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.FilenameUtils;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -39,6 +40,8 @@ import java.util.List;
 
 import es.dmoral.toasty.Toasty;
 import okhttp3.Call;
+
+import static org.apache.commons.lang3.StringUtils.split;
 
 public class MainActivity extends AppCompatActivity {
     private RadioGroup rg_tabs;
@@ -58,6 +61,7 @@ public class MainActivity extends AppCompatActivity {
         initView();
 
         checkVersion();
+        deleteApk();
         checkLoginToken();
 
     }
@@ -121,8 +125,16 @@ public class MainActivity extends AppCompatActivity {
         radioButton.setCompoundDrawables(null, selector, null, null);
     }
 
-
+    /**
+     * 检查版本
+     */
     private void checkVersion() {
+        try {
+            packageInfo = getPackageManager().getPackageInfo(getPackageName(), 0);
+        } catch (PackageManager.NameNotFoundException e) {
+            e.printStackTrace();
+        }
+        //发送请求检查版本
         HttpUtil.post("/app/getLatestInfo", null, new CallBackUtil.CallBackString() {
             @Override
             public void onFailure(Call call, Exception e) {
@@ -142,11 +154,6 @@ public class MainActivity extends AppCompatActivity {
                     return;
                 //和我现在的版本号对比
                 LatestInfoResponse latestInfoResponse = result.getData();
-                try {
-                    packageInfo = getPackageManager().getPackageInfo(getPackageName(), 0);
-                } catch (PackageManager.NameNotFoundException e) {
-                    e.printStackTrace();
-                }
                 //如果现在的版本是最新版
                 if (packageInfo.versionCode == latestInfoResponse.getVersionCode())
                     return;
@@ -160,11 +167,36 @@ public class MainActivity extends AppCompatActivity {
     }
 
     /**
+     * 删除，比当前版本低的apk文件
+     */
+    private void deleteApk() {
+        File folder = new File(FilePathUtil.getApkDownloadFolder(this));
+        File[] files = folder.listFiles();
+        for (File file : files) {
+            String baseName = FilenameUtils.getBaseName(file.getName());
+            int versionCode;
+            //解析版本号，如果解析错误，就跳过吧
+            try {
+                versionCode = Integer.parseInt(baseName.split("-")[0]);
+            } catch (NumberFormatException e) {
+                e.printStackTrace();
+                return;
+            }
+            //如果apk文件的版本号，小于我当前的版本号，那就删除
+            if (versionCode < packageInfo.versionCode) {
+                file.delete();
+            }
+        }
+    }
+
+    /**
      * 提示更新
      */
     private void promptUpdate(LatestInfoResponse latestInfoResponse) {
         //拼接描述信息
-        String message = packageInfo.versionName + " > " + latestInfoResponse.getVersionName();
+        String message = packageInfo.versionName + " > " + latestInfoResponse.getVersionName()
+                + "\n" + getString(R.string.size) + ": "
+                + FileUtils.byteCountToDisplaySize(latestInfoResponse.getApkSize());
         String description = latestInfoResponse.getDescription();
         if (description != null)
             message += "\n" + description;
@@ -174,9 +206,11 @@ public class MainActivity extends AppCompatActivity {
             new AlertDialog.Builder(this)
                     .setTitle(R.string.please_update)
                     .setMessage(message)
-                    .setPositiveButton(R.string.yes, (dialogInterface, i) ->
-                            runUpdate(latestInfoResponse)
-                    )
+                    .setPositiveButton(R.string.yes, (dialog, which) -> {
+                        //打开下载页面
+                        openDownloadActivity(latestInfoResponse);
+                        finish();
+                    })
                     .setNegativeButton(R.string.no, null)
                     .create().show();
         } else {
@@ -184,43 +218,25 @@ public class MainActivity extends AppCompatActivity {
             new AlertDialog.Builder(this)
                     .setTitle(R.string.please_update)
                     .setMessage(message)
-                    .setPositiveButton(R.string.yes, (dialogInterface, i) ->
-                            runUpdate(latestInfoResponse)
-                    )
+                    .setPositiveButton(R.string.yes, (dialog, which) -> {
+                        //打开下载页面
+                        openDownloadActivity(latestInfoResponse);
+                        finish();
+                    })
                     .setCancelable(false)
                     .create().show();
         }
     }
 
     /**
-     * 执行更新
+     * 打开下载页面
      *
      * @param latestInfoResponse
      */
-    private void runUpdate(LatestInfoResponse latestInfoResponse) {
-        File apkFile = new File(getCacheDir().getPath()
-                + "/apk/update-" + latestInfoResponse.getVersionName() + ".apk");
-        OkhttpUtil.downloadFile(latestInfoResponse.getApkDownloadUrl(),
-                new CallBackUtil.CallBackFile(apkFile.getParent(), apkFile.getName()) {
-                    @Override
-                    public void onFailure(Call call, Exception e) {
-                    }
-
-                    @Override
-                    public void onResponse(File response) {
-                        Intent intent = new Intent(Intent.ACTION_VIEW);
-                        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-                            intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
-                            Uri uri = FileProvider.getUriForFile(MainActivity.this,
-                                    packageInfo.packageName + ".fileprovider", apkFile);
-                            intent.setDataAndType(uri, "application/vnd.android.package-archive");
-                        } else {
-                            intent.setDataAndType(Uri.fromFile(apkFile), "application/vnd.android.package-archive");
-                        }
-                        startActivity(intent);
-                    }
-                });
+    private void openDownloadActivity(LatestInfoResponse latestInfoResponse) {
+        Intent intent = new Intent(this, DownloadActivity.class);
+        intent.putExtra("LatestInfoResponse", JSON.toJSONString(latestInfoResponse));
+        startActivity(intent);
     }
 
     private void checkLoginToken() {

@@ -145,10 +145,9 @@ public abstract class CallBackUtil<T> {
 
         @Override
         public File onParseResponse(Call call, Response response) {
-
             InputStream is = null;
             byte[] buf = new byte[1024 * 8];
-            int len = 0;
+            int len;
             FileOutputStream fos = null;
             try {
                 is = response.body().byteStream();

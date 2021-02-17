@@ -9,4 +9,5 @@ public class LatestInfoResponse {
     private String description;
     private Boolean isForceUpdate;
     private String apkDownloadUrl;
+    private Long apkSize;
 }

@@ -13,14 +13,6 @@
           <set>
             <option value="$PROJECT_DIR$" />
             <option value="$PROJECT_DIR$/app" />
-            <option value="$PROJECT_DIR$/audioeffectsettingkit" />
-            <option value="$PROJECT_DIR$/beautysettingkit" />
-            <option value="$PROJECT_DIR$/debug" />
-            <option value="$PROJECT_DIR$/login" />
-            <option value="$PROJECT_DIR$/trtccallingdemo" />
-            <option value="$PROJECT_DIR$/trtcliveroomdemo" />
-            <option value="$PROJECT_DIR$/trtcmeetingdemo" />
-            <option value="$PROJECT_DIR$/trtcvoiceroomdemo" />
           </set>
         </option>
         <option name="resolveModulePerSourceSet" value="false" />

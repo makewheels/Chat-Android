@@ -7,7 +7,6 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
-import android.util.Log;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
@@ -29,16 +28,11 @@ import com.androiddeveloper.chat.utils.MessageType;
 import com.androiddeveloper.chat.utils.UserUtil;
 import com.androiddeveloper.chat.utils.http.CallBackUtil;
 import com.androiddeveloper.chat.utils.http.HttpUtil;
-import com.huawei.multimedia.liteav.audiokit.utils.Constant;
 import com.permissionx.guolindev.PermissionX;
-import com.tencent.liteav.beauty.TXBeautyManager;
-import com.tencent.trtc.TRTCCloud;
-import com.tencent.trtc.TRTCCloudDef;
 
 import org.apache.commons.lang3.StringUtils;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -62,8 +56,6 @@ public class DialogActivity extends AppCompatActivity {
     private MessageAdapter messageAdapter;
 
     public static final String ACTION_RECEIVE_PERSON_MESSAGE = "com.gc.broadcast.receiver";
-
-    private TRTCCloud mTRTCCloud;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {

@@ -66,7 +66,7 @@ public class DialogActivity extends AppCompatActivity {
 
     private MessageAdapter messageAdapter;
 
-    public static final String ACTION_RECEIVE_PERSON_MESSAGE = "com.gc.broadcast.receiver";
+    public static final String ACTION_RECEIVE_PERSON_MESSAGE = "ACTION_RECEIVE_PERSON_MESSAGE";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {

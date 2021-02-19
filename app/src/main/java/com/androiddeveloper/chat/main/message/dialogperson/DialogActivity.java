@@ -135,6 +135,10 @@ public class DialogActivity extends AppCompatActivity {
     }
 
     private void addListeners() {
+        //解决一个问题，输入框获得焦点的时候，自动把recycle view滚动到最低端
+        rv_dialog.getViewTreeObserver().addOnGlobalLayoutListener(() -> {
+            rv_dialog.scrollToPosition(messageAdapter.getItemCount() - 1);
+        });
         //发送消息按钮
         btn_send.setOnClickListener(v -> {
             String input = et_input.getText().toString();
@@ -216,7 +220,8 @@ public class DialogActivity extends AppCompatActivity {
         new Thread() {
             @Override
             public void run() {
-                recordAudio();
+                File file = new File(getFilesDir().getPath() + "/" + System.currentTimeMillis() + ".pcm");
+                recordAudio(file);
             }
         }.start();
     }
@@ -224,11 +229,10 @@ public class DialogActivity extends AppCompatActivity {
     /**
      * 录音
      */
-    private void recordAudio() {
-        int frequency = 16000;
+    private void recordAudio(File file) {
+        int frequency = 8000;
         int channelConfiguration = AudioFormat.CHANNEL_IN_MONO;
-        int audioEncoding = AudioFormat.ENCODING_PCM_16BIT;
-        File file = new File(getFilesDir().getPath() + "/" + System.currentTimeMillis() + ".pcm");
+        int audioEncoding = AudioFormat.ENCODING_PCM_8BIT;
         int bufferSize = AudioRecord.getMinBufferSize(frequency, channelConfiguration, audioEncoding);
         AudioRecord audioRecord = new AudioRecord(MediaRecorder.AudioSource.MIC,
                 frequency, channelConfiguration, audioEncoding, bufferSize);
@@ -252,12 +256,11 @@ public class DialogActivity extends AppCompatActivity {
         }
     }
 
-
     //从相册中选图片
     private void pickImage() {
         isRecording = false;
         PlayRecord(new File(getFilesDir().getPath() + "/" +
-                "1613737072381.pcm"));
+                "1613741048427.pcm"));
     }
 
     public void addMessage(PersonMessage personMessage) {
@@ -270,10 +273,6 @@ public class DialogActivity extends AppCompatActivity {
 
     //播放文件
     public void PlayRecord(File file) {
-        if (file == null) {
-            return;
-        }
-        //读取文件
         int musicLength = (int) (file.length() / 2);
         short[] music = new short[musicLength];
         try {
@@ -287,8 +286,8 @@ public class DialogActivity extends AppCompatActivity {
             }
             dis.close();
             AudioTrack audioTrack = new AudioTrack(AudioManager.STREAM_MUSIC,
-                    16000, AudioFormat.CHANNEL_OUT_MONO,
-                    AudioFormat.ENCODING_PCM_16BIT,
+                    8000, AudioFormat.CHANNEL_OUT_MONO,
+                    AudioFormat.ENCODING_PCM_8BIT,
                     musicLength * 2,
                     AudioTrack.MODE_STREAM);
             audioTrack.play();

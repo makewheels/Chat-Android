@@ -59,8 +59,8 @@ public class LoginActivity extends AppCompatActivity {
         setClickListener();
 
         //这是第一个页面，要在这里检查版本
-        deleteApk();
         checkVersion();
+        deleteApk();
 
     }
 

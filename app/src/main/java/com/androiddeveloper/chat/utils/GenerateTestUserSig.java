@@ -1,4 +1,4 @@
-package com.androiddeveloper.chat.main.message.dialogperson;
+package com.androiddeveloper.chat.utils;
 
 import android.text.TextUtils;
 import android.util.Base64;

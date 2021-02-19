@@ -7,11 +7,11 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.graphics.drawable.Drawable;
 import android.media.AudioFormat;
+import android.media.AudioManager;
 import android.media.AudioRecord;
-import android.media.MediaPlayer;
+import android.media.AudioTrack;
 import android.media.MediaRecorder;
 import android.os.Bundle;
-import android.util.Log;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
@@ -37,11 +37,15 @@ import com.permissionx.guolindev.PermissionX;
 
 import org.apache.commons.lang3.StringUtils;
 
+import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
+import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
@@ -222,11 +226,8 @@ public class DialogActivity extends AppCompatActivity {
      */
     private void recordAudio() {
         int frequency = 16000;
-        //格式
         int channelConfiguration = AudioFormat.CHANNEL_IN_MONO;
-        //16Bit
         int audioEncoding = AudioFormat.ENCODING_PCM_16BIT;
-        //生成PCM文件
         File file = new File(getFilesDir().getPath() + "/" + System.currentTimeMillis() + ".pcm");
         int bufferSize = AudioRecord.getMinBufferSize(frequency, channelConfiguration, audioEncoding);
         AudioRecord audioRecord = new AudioRecord(MediaRecorder.AudioSource.MIC,
@@ -238,7 +239,6 @@ public class DialogActivity extends AppCompatActivity {
             audioRecord.startRecording();
             isRecording = true;
             while (isRecording) {
-                Log.e("tag", "isRecording..." + isRecording);
                 int bufferReadResult = audioRecord.read(buffer, 0, bufferSize);
                 for (int i = 0; i < bufferReadResult; i++) {
                     dataOutputStream.writeShort(buffer[i]);
@@ -256,15 +256,8 @@ public class DialogActivity extends AppCompatActivity {
     //从相册中选图片
     private void pickImage() {
         isRecording = false;
-        Log.e("tag", "pickImage  " + isRecording);
-        MediaPlayer mediaPlayer = new MediaPlayer();
-        try {
-            mediaPlayer.setDataSource("/data/data/com.androiddeveloper.chat/files/1613658879013.pcm");
-            mediaPlayer.prepare();
-            mediaPlayer.start();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+        PlayRecord(new File(getFilesDir().getPath() + "/" +
+                "1613737072381.pcm"));
     }
 
     public void addMessage(PersonMessage personMessage) {
@@ -273,6 +266,37 @@ public class DialogActivity extends AppCompatActivity {
         //滑动到最低端
         rv_dialog.scrollToPosition(messageAdapter.getItemCount() - 1);
         //写入数据库
+    }
+
+    //播放文件
+    public void PlayRecord(File file) {
+        if (file == null) {
+            return;
+        }
+        //读取文件
+        int musicLength = (int) (file.length() / 2);
+        short[] music = new short[musicLength];
+        try {
+            InputStream is = new FileInputStream(file);
+            BufferedInputStream bis = new BufferedInputStream(is);
+            DataInputStream dis = new DataInputStream(bis);
+            int i = 0;
+            while (dis.available() > 0) {
+                music[i] = dis.readShort();
+                i++;
+            }
+            dis.close();
+            AudioTrack audioTrack = new AudioTrack(AudioManager.STREAM_MUSIC,
+                    16000, AudioFormat.CHANNEL_OUT_MONO,
+                    AudioFormat.ENCODING_PCM_16BIT,
+                    musicLength * 2,
+                    AudioTrack.MODE_STREAM);
+            audioTrack.play();
+            audioTrack.write(music, 0, musicLength);
+            audioTrack.stop();
+        } catch (Throwable t) {
+            t.printStackTrace();
+        }
     }
 
     /**

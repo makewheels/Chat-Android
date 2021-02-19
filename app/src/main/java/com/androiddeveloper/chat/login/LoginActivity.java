@@ -62,6 +62,14 @@ public class LoginActivity extends AppCompatActivity {
         checkVersion();
         deleteApk();
 
+        //看有没有loginToken
+        String loginToken = LoginTokenUtil.getLoginToken();
+        //如果有loginToken，跳转主页面
+        if (StringUtils.isNotEmpty(loginToken)) {
+            Intent intent = new Intent(LoginActivity.this, MainActivity.class);
+            startActivity(intent);
+            finish();
+        }
     }
 
     private void initView() {
@@ -121,19 +129,6 @@ public class LoginActivity extends AppCompatActivity {
                     return;
                 //和我现在的版本号对比
                 LatestInfoResponse latestInfoResponse = result.getData();
-                //这里的逻辑是这样的，看它有没有登陆，如果已经登陆，那就交给主页处理
-                //如果还没登录，那就在本页处理
-                //看有没有loginToken
-                String loginToken = LoginTokenUtil.getLoginToken();
-                //如果有loginToken，跳转主页面
-                if (StringUtils.isNotEmpty(loginToken)) {
-                    Intent intent = new Intent(LoginActivity.this, MainActivity.class);
-                    intent.putExtra("LatestInfoResponse", JSON.toJSONString(latestInfoResponse));
-                    startActivity(intent);
-                    finish();
-                    //下面的判断也都不在 LoginActivity 执行了
-                    return;
-                }
                 //如果小于最新版，那就需要提示更新了
                 if (packageInfo.versionCode < latestInfoResponse.getVersionCode()) {
                     promptUpdate(latestInfoResponse);

@@ -204,8 +204,7 @@ public class MainActivity extends AppCompatActivity {
                         });
                 //如果需要登录，跳转到登录Activity
                 if (result.getCode() == Code.CHECK_LOGIN_TOKEN_ERROR) {
-                    Toasty.error(MainActivity.this,
-                            "checkLoginToken onResponse " + result.getMessage(),
+                    Toasty.error(MainActivity.this, result.getMessage(),
                             Toast.LENGTH_SHORT).show();
                     LoginTokenUtil.removeLoginToken();
                     Intent intent = new Intent(MainActivity.this, LoginActivity.class);

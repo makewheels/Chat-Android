@@ -8,9 +8,9 @@ import android.content.IntentFilter;
 import android.graphics.drawable.Drawable;
 import android.media.AudioFormat;
 import android.media.AudioRecord;
+import android.media.MediaPlayer;
 import android.media.MediaRecorder;
 import android.os.Bundle;
-import android.os.Environment;
 import android.util.Log;
 import android.widget.Button;
 import android.widget.EditText;
@@ -42,7 +42,6 @@ import java.io.DataOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
@@ -192,7 +191,7 @@ public class DialogActivity extends AppCompatActivity {
                     .permissions(Manifest.permission.RECORD_AUDIO)
                     .request((allGranted, grantedList, deniedList) -> {
                         if (!allGranted) {
-                            Toasty.warning(DialogActivity.this, R.string.permission_denied_record_audio,
+                            Toasty.error(DialogActivity.this, R.string.permission_denied_record_audio,
                                     Toast.LENGTH_SHORT).show();
                             return;
                         }
@@ -206,11 +205,22 @@ public class DialogActivity extends AppCompatActivity {
         });
     }
 
-    boolean isRecording = true;
-    AudioRecord audioRecord;
+    private boolean isRecording = false;
 
-    //开始录音
+    //发送录音文件
     private void sendAudio() {
+        new Thread() {
+            @Override
+            public void run() {
+                recordAudio();
+            }
+        }.start();
+    }
+
+    /**
+     * 录音
+     */
+    private void recordAudio() {
         int frequency = 16000;
         //格式
         int channelConfiguration = AudioFormat.CHANNEL_IN_MONO;
@@ -218,33 +228,44 @@ public class DialogActivity extends AppCompatActivity {
         int audioEncoding = AudioFormat.ENCODING_PCM_16BIT;
         //生成PCM文件
         File file = new File(getFilesDir().getPath() + "/" + System.currentTimeMillis() + ".pcm");
+        int bufferSize = AudioRecord.getMinBufferSize(frequency, channelConfiguration, audioEncoding);
+        AudioRecord audioRecord = new AudioRecord(MediaRecorder.AudioSource.MIC,
+                frequency, channelConfiguration, audioEncoding, bufferSize);
         try {
-            OutputStream os = new FileOutputStream(file);
-            BufferedOutputStream bos = new BufferedOutputStream(os);
-            DataOutputStream dos = new DataOutputStream(bos);
-            int bufferSize = AudioRecord.getMinBufferSize(frequency, channelConfiguration, audioEncoding);
-            audioRecord = new AudioRecord(MediaRecorder.AudioSource.MIC,
-                    frequency, channelConfiguration, audioEncoding, bufferSize);
+            DataOutputStream dataOutputStream = new DataOutputStream(
+                    new BufferedOutputStream(new FileOutputStream(file)));
             short[] buffer = new short[bufferSize];
             audioRecord.startRecording();
+            isRecording = true;
             while (isRecording) {
+                Log.e("tag", "isRecording..." + isRecording);
                 int bufferReadResult = audioRecord.read(buffer, 0, bufferSize);
                 for (int i = 0; i < bufferReadResult; i++) {
-                    dos.writeShort(buffer[i]);
+                    dataOutputStream.writeShort(buffer[i]);
                 }
             }
             audioRecord.stop();
-            dos.close();
+            audioRecord.release();
+            dataOutputStream.close();
         } catch (IOException e) {
             e.printStackTrace();
         }
     }
 
+
     //从相册中选图片
     private void pickImage() {
         isRecording = false;
+        Log.e("tag", "pickImage  " + isRecording);
+        MediaPlayer mediaPlayer = new MediaPlayer();
+        try {
+            mediaPlayer.setDataSource("/data/data/com.androiddeveloper.chat/files/1613658879013.pcm");
+            mediaPlayer.prepare();
+            mediaPlayer.start();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
-
 
     public void addMessage(PersonMessage personMessage) {
         //添加到dialog里

@@ -50,6 +50,15 @@ android {
         }
     }
 
+    signingConfigs {
+        debug {
+            keyAlias 'key0'
+            keyPassword '111111'
+            storeFile file('../keystore/alpha.jks')
+            storePassword '111111'
+        }
+    }
+
     packagingOptions {
         pickFirst '**/libc++_shared.so'
         doNotStrip "*/armeabi/libYTCommon.so"
@@ -70,7 +79,7 @@ dependencies {
     implementation 'cn.jiguang.sdk:jcore:2.6.0'
     implementation 'cn.jiguang.sdk:jpush:3.9.1'
 
-    //OKhttp不能用最新版，为了兼容android低版本
+    //OKhttp不能用最新版，为了兼容android 4.4低版本
     implementation 'com.squareup.okhttp3:okhttp:3.12.0'
     implementation 'com.github.GrenderG:Toasty:1.5.0'
 

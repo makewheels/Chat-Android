@@ -2,7 +2,6 @@ package com.androiddeveloper.chat.login;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
@@ -55,7 +54,7 @@ public class LoginActivity extends AppCompatActivity {
         }
 
         initView();
-        setOnClickListener();
+        setClickListener();
     }
 
     private void initView() {
@@ -65,22 +64,14 @@ public class LoginActivity extends AppCompatActivity {
         btn_to_register = findViewById(R.id.btn_to_register);
     }
 
-    private void setOnClickListener() {
-        btn_login.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                click_btn_login();
-            }
-        });
-        btn_to_register.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                //前往注册页面的时候，要一个结果
-                //一种情况是用户直接返回，不需要任何操作
-                //还有一种情况是用户在注册页注册成功，那就要finish掉登录Activity
-                Intent intent = new Intent(LoginActivity.this, RegisterActivity.class);
-                startActivityForResult(intent, REQUEST_CODE_START_LOGIN_ACTIVITY);
-            }
+    private void setClickListener() {
+        btn_login.setOnClickListener(v -> click_btn_login());
+        btn_to_register.setOnClickListener(v -> {
+            //前往注册页面的时候，要一个结果
+            //一种情况是用户直接返回，不需要任何操作
+            //还有一种情况是用户在注册页注册成功，那就要finish掉登录Activity
+            Intent intent = new Intent(LoginActivity.this, RegisterActivity.class);
+            startActivityForResult(intent, REQUEST_CODE_START_LOGIN_ACTIVITY);
         });
     }
 

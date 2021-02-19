@@ -4,6 +4,7 @@ import android.content.Intent;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.graphics.drawable.Drawable;
+import android.graphics.drawable.StateListDrawable;
 import android.os.Bundle;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
@@ -41,8 +42,6 @@ import java.util.List;
 import es.dmoral.toasty.Toasty;
 import okhttp3.Call;
 
-import static org.apache.commons.lang3.StringUtils.split;
-
 public class MainActivity extends AppCompatActivity {
     private RadioGroup rg_tabs;
     private RadioButton rb_message;
@@ -73,7 +72,8 @@ public class MainActivity extends AppCompatActivity {
 
         setBounds(R.xml.tab_selector_message, rb_message);
         setBounds(R.xml.tab_selector_settings, rb_settings);
-
+        rb_message.setButtonDrawable(new StateListDrawable());
+        rb_settings.setButtonDrawable(new StateListDrawable());
         initFragments();
 
     }

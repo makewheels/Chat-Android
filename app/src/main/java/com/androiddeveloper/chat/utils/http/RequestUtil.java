@@ -25,7 +25,6 @@ import okio.Sink;
 /**
  * Created by fighting on 2017/4/7.
  */
-
 class RequestUtil {
     private String mMetyodType;//请求方式，目前只支持get和post
     private String mUrl;//接口

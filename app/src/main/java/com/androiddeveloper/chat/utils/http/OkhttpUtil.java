@@ -8,7 +8,6 @@ import java.util.Map;
  * https://github.com/guozhengXia/OkHttpUtils
  * Created by fighting on 2017/4/7.
  */
-
 public class OkhttpUtil {
 
     public static final String METHOD_GET = "GET";

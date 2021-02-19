@@ -54,7 +54,7 @@ android {
         debug {
             keyAlias 'key0'
             keyPassword '111111'
-            storeFile file('../keystore/alpha.jks')
+            storeFile file('keystore/alpha.jks')
             storePassword '111111'
         }
     }

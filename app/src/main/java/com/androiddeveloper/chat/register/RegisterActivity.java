@@ -104,7 +104,7 @@ public class RegisterActivity extends AppCompatActivity {
                 startActivity(new Intent(RegisterActivity.this, MainActivity.class));
                 Toasty.success(RegisterActivity.this, R.string.register_success,
                         Toasty.LENGTH_SHORT).show();
-                setResult(1);
+                setResult(RESULT_OK);
                 finish();
             }
         });

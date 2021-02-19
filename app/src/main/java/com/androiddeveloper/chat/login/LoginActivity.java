@@ -1,12 +1,15 @@
 package com.androiddeveloper.chat.login;
 
 import android.content.Intent;
+import android.content.pm.PackageInfo;
+import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
 
 import androidx.annotation.Nullable;
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.alibaba.fastjson.JSON;
@@ -14,16 +17,22 @@ import com.alibaba.fastjson.TypeReference;
 import com.androiddeveloper.chat.R;
 import com.androiddeveloper.chat.common.Code;
 import com.androiddeveloper.chat.common.Result;
+import com.androiddeveloper.chat.main.LatestInfoResponse;
 import com.androiddeveloper.chat.main.MainActivity;
+import com.androiddeveloper.chat.main.download.DownloadActivity;
 import com.androiddeveloper.chat.register.RegisterActivity;
 import com.androiddeveloper.chat.utils.Constants;
+import com.androiddeveloper.chat.utils.FilePathUtil;
 import com.androiddeveloper.chat.utils.LoginTokenUtil;
 import com.androiddeveloper.chat.utils.SharedPreferencesUtil;
 import com.androiddeveloper.chat.utils.http.CallBackUtil;
 import com.androiddeveloper.chat.utils.http.HttpUtil;
 
+import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.StringUtils;
 
+import java.io.File;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -37,24 +46,22 @@ public class LoginActivity extends AppCompatActivity {
     private Button btn_login;
     private Button btn_to_register;
 
-    private static final int REQUEST_CODE_START_LOGIN_ACTIVITY = 0;
+    private static final int REQUEST_CODE_START_REGISTER_ACTIVITY = 0;
+
+    private PackageInfo packageInfo;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
 
-        //先看有没有loginToken
-        String loginToken = LoginTokenUtil.getLoginToken();
-        //如果有loginToken，跳转主页面
-        if (StringUtils.isNotEmpty(loginToken)) {
-            Intent intent = new Intent(this, MainActivity.class);
-            startActivity(intent);
-            finish();
-        }
-
         initView();
         setClickListener();
+
+        //这是第一个页面，要在这里检查版本
+        deleteApk();
+        checkVersion();
+
     }
 
     private void initView() {
@@ -71,18 +78,143 @@ public class LoginActivity extends AppCompatActivity {
             //一种情况是用户直接返回，不需要任何操作
             //还有一种情况是用户在注册页注册成功，那就要finish掉登录Activity
             Intent intent = new Intent(LoginActivity.this, RegisterActivity.class);
-            startActivityForResult(intent, REQUEST_CODE_START_LOGIN_ACTIVITY);
+            startActivityForResult(intent, REQUEST_CODE_START_REGISTER_ACTIVITY);
         });
     }
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        if (requestCode == REQUEST_CODE_START_LOGIN_ACTIVITY) {
-            if (resultCode == 1) {
-                finish();
+        if (resultCode != RESULT_OK)
+            return;
+        if (requestCode == REQUEST_CODE_START_REGISTER_ACTIVITY) {
+            finish();
+        }
+    }
+
+    /**
+     * 检查版本
+     */
+    private void checkVersion() {
+        try {
+            packageInfo = getPackageManager().getPackageInfo(getPackageName(), 0);
+        } catch (PackageManager.NameNotFoundException e) {
+            e.printStackTrace();
+        }
+        //发送请求检查版本
+        HttpUtil.post("/app/getLatestInfo", null, new CallBackUtil.CallBackString() {
+            @Override
+            public void onFailure(Call call, Exception e) {
+                Toasty.error(LoginActivity.this,
+                        "/app/getLatestInfo onFailure " + R.string.error_occurred_please_retry,
+                        Toast.LENGTH_SHORT).show();
+                e.printStackTrace();
+            }
+
+            @Override
+            public void onResponse(String response) {
+                Result<LatestInfoResponse> result
+                        = JSON.parseObject(response,
+                        new TypeReference<Result<LatestInfoResponse>>(Result.class) {
+                        });
+                if (result.getCode() != Code.SUCCESS)
+                    return;
+                //和我现在的版本号对比
+                LatestInfoResponse latestInfoResponse = result.getData();
+                //这里的逻辑是这样的，看它有没有登陆，如果已经登陆，那就交给主页处理
+                //如果还没登录，那就在本页处理
+                //看有没有loginToken
+                String loginToken = LoginTokenUtil.getLoginToken();
+                //如果有loginToken，跳转主页面
+                if (StringUtils.isNotEmpty(loginToken)) {
+                    Intent intent = new Intent(LoginActivity.this, MainActivity.class);
+                    intent.putExtra("LatestInfoResponse", JSON.toJSONString(latestInfoResponse));
+                    startActivity(intent);
+                    finish();
+                    //下面的判断也都不在 LoginActivity 执行了
+                    return;
+                }
+                //如果小于最新版，那就需要提示更新了
+                if (packageInfo.versionCode < latestInfoResponse.getVersionCode()) {
+                    promptUpdate(latestInfoResponse);
+                }
+            }
+        });
+    }
+
+    /**
+     * 提示更新
+     */
+    private void promptUpdate(LatestInfoResponse latestInfoResponse) {
+        //拼接描述信息
+        String message = packageInfo.versionName + " > " + latestInfoResponse.getVersionName()
+                + "\n" + getString(R.string.size) + ": "
+                + FileUtils.byteCountToDisplaySize(latestInfoResponse.getApkSize());
+        String description = latestInfoResponse.getDescription();
+        if (description != null)
+            message += "\n" + description;
+
+        //如果不是强制更新
+        if (!latestInfoResponse.getIsForceUpdate()) {
+            new AlertDialog.Builder(this)
+                    .setTitle(R.string.please_update)
+                    .setMessage(message)
+                    .setPositiveButton(R.string.yes, (dialog, which) -> {
+                        //打开下载页面
+                        openDownloadActivity(latestInfoResponse);
+                        finish();
+                    })
+                    .setNegativeButton(R.string.no, null)
+                    .create().show();
+        } else {
+            //如果是强制更新
+            new AlertDialog.Builder(this)
+                    .setTitle(R.string.please_update)
+                    .setMessage(message)
+                    .setPositiveButton(R.string.yes, (dialog, which) -> {
+                        //打开下载页面
+                        openDownloadActivity(latestInfoResponse);
+                        finish();
+                    })
+                    .setCancelable(false)
+                    .create().show();
+        }
+    }
+
+    /**
+     * 删除，比当前版本低的apk文件
+     */
+    private void deleteApk() {
+        File folder = new File(FilePathUtil.getApkDownloadFolder(this));
+        File[] files = folder.listFiles();
+        if (files == null)
+            return;
+        for (File file : files) {
+            String baseName = FilenameUtils.getBaseName(file.getName());
+            int versionCode;
+            //解析版本号，如果解析错误，就跳过吧
+            try {
+                versionCode = Integer.parseInt(baseName.split("-")[0]);
+            } catch (NumberFormatException e) {
+                e.printStackTrace();
+                return;
+            }
+            //如果apk文件的版本号，小于我当前的版本号，那就删除
+            if (versionCode < packageInfo.versionCode) {
+                file.delete();
             }
         }
+    }
+
+    /**
+     * 打开下载页面
+     *
+     * @param latestInfoResponse
+     */
+    private void openDownloadActivity(LatestInfoResponse latestInfoResponse) {
+        Intent intent = new Intent(this, DownloadActivity.class);
+        intent.putExtra("LatestInfoResponse", JSON.toJSONString(latestInfoResponse));
+        startActivity(intent);
     }
 
     /**

@@ -26,16 +26,13 @@ import com.androiddeveloper.chat.login.UserInfoResponse;
 import com.androiddeveloper.chat.main.download.DownloadActivity;
 import com.androiddeveloper.chat.main.message.MessageFragment;
 import com.androiddeveloper.chat.main.settings.SettingsFragment;
-import com.androiddeveloper.chat.utils.FilePathUtil;
 import com.androiddeveloper.chat.utils.LoginTokenUtil;
 import com.androiddeveloper.chat.utils.UserUtil;
 import com.androiddeveloper.chat.utils.http.CallBackUtil;
 import com.androiddeveloper.chat.utils.http.HttpUtil;
 
 import org.apache.commons.io.FileUtils;
-import org.apache.commons.io.FilenameUtils;
 
-import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -60,7 +57,6 @@ public class MainActivity extends AppCompatActivity {
         initView();
 
         checkVersion();
-        deleteApk();
         checkLoginToken();
 
     }
@@ -125,69 +121,18 @@ public class MainActivity extends AppCompatActivity {
         radioButton.setCompoundDrawables(null, selector, null, null);
     }
 
-    /**
-     * 检查版本
-     */
     private void checkVersion() {
         try {
             packageInfo = getPackageManager().getPackageInfo(getPackageName(), 0);
         } catch (PackageManager.NameNotFoundException e) {
             e.printStackTrace();
         }
-        //发送请求检查版本
-        HttpUtil.post("/app/getLatestInfo", null, new CallBackUtil.CallBackString() {
-            @Override
-            public void onFailure(Call call, Exception e) {
-                Toasty.error(MainActivity.this,
-                        "/app/getLatestInfo onFailure " + R.string.error_occurred_please_retry,
-                        Toast.LENGTH_SHORT).show();
-                e.printStackTrace();
-            }
-
-            @Override
-            public void onResponse(String response) {
-                Result<LatestInfoResponse> result
-                        = JSON.parseObject(response,
-                        new TypeReference<Result<LatestInfoResponse>>(Result.class) {
-                        });
-                if (result.getCode() != Code.SUCCESS)
-                    return;
-                //和我现在的版本号对比
-                LatestInfoResponse latestInfoResponse = result.getData();
-                //如果现在的版本是最新版
-                if (packageInfo.versionCode == latestInfoResponse.getVersionCode())
-                    return;
-                //如果小于最新版，那就需要提示更新了
-                if (packageInfo.versionCode < latestInfoResponse.getVersionCode()) {
-                    promptUpdate(latestInfoResponse);
-                }
-                //如果大于最新版也是什么都不做
-            }
-        });
-    }
-
-    /**
-     * 删除，比当前版本低的apk文件
-     */
-    private void deleteApk() {
-        File folder = new File(FilePathUtil.getApkDownloadFolder(this));
-        File[] files = folder.listFiles();
-        if (files == null)
-            return;
-        for (File file : files) {
-            String baseName = FilenameUtils.getBaseName(file.getName());
-            int versionCode;
-            //解析版本号，如果解析错误，就跳过吧
-            try {
-                versionCode = Integer.parseInt(baseName.split("-")[0]);
-            } catch (NumberFormatException e) {
-                e.printStackTrace();
-                return;
-            }
-            //如果apk文件的版本号，小于我当前的版本号，那就删除
-            if (versionCode < packageInfo.versionCode) {
-                file.delete();
-            }
+        Intent intent = getIntent();
+        String json = intent.getStringExtra("LatestInfoResponse");
+        LatestInfoResponse latestInfoResponse = JSON.parseObject(json, LatestInfoResponse.class);
+        //如果小于最新版，那就需要提示更新了
+        if (packageInfo.versionCode < latestInfoResponse.getVersionCode()) {
+            promptUpdate(latestInfoResponse);
         }
     }
 

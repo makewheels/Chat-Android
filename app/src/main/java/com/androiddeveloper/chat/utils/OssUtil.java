@@ -5,16 +5,12 @@ import android.widget.Toast;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.TypeReference;
-import com.alibaba.sdk.android.oss.ClientConfiguration;
 import com.alibaba.sdk.android.oss.ClientException;
 import com.alibaba.sdk.android.oss.OSS;
 import com.alibaba.sdk.android.oss.OSSClient;
 import com.alibaba.sdk.android.oss.ServiceException;
-import com.alibaba.sdk.android.oss.callback.OSSCompletedCallback;
-import com.alibaba.sdk.android.oss.callback.OSSProgressCallback;
 import com.alibaba.sdk.android.oss.common.auth.OSSAuthCredentialsProvider;
 import com.alibaba.sdk.android.oss.common.auth.OSSCredentialProvider;
-import com.alibaba.sdk.android.oss.internal.OSSAsyncTask;
 import com.alibaba.sdk.android.oss.model.PutObjectRequest;
 import com.alibaba.sdk.android.oss.model.PutObjectResult;
 import com.androiddeveloper.chat.R;
@@ -25,6 +21,7 @@ import com.androiddeveloper.chat.utils.http.HttpUtil;
 
 import java.io.File;
 import java.util.Date;
+import java.util.HashMap;
 
 import es.dmoral.toasty.Toasty;
 import lombok.Data;
@@ -48,6 +45,11 @@ public class OssUtil {
      * 更新凭证
      */
     private static void updateCredentials() {
+        //先看过没过期
+        Date currentDate = new Date();
+        //如果没过期就不更新了
+        if (!currentDate.after(credentials.getExpiration()))
+            return;
         HttpUtil.post("/oss/getStsCredential", null, new CallBackUtil.CallBackString() {
             @Override
             public void onFailure(Call call, Exception e) {
@@ -70,12 +72,11 @@ public class OssUtil {
         });
     }
 
-    private static OSS oss;
+    private static final OSS oss;
 
     static {
         String endpoint = "https://oss-cn-beijing.aliyuncs.com";
         String stsServer = "STS应用服务器地址，例如http://abc.com";
-        // 推荐使用OSSAuthCredentialsProvider。token过期可以及时更新。
         OSSCredentialProvider credentialProvider = new OSSAuthCredentialsProvider(stsServer);
         oss = new OSSClient(ContextUtil.applicationContext, endpoint, credentialProvider);
     }
@@ -90,6 +91,18 @@ public class OssUtil {
         // 构造上传请求。
         PutObjectRequest put = new PutObjectRequest(
                 "chat-oss-bucket", objectKey, uploadFile.getPath());
+        put.setCallbackParam(new HashMap<String, String>() {
+            {
+                put("callbackUrl", "http://abc.com/callback.php");
+                put("callbackBody", "filename=${object}&size=${size}&photo=${x:photo}&system=${x:system}");
+            }
+        });
+        put.setCallbackVars(new HashMap<String, String>() {
+            {
+                put("x:phone", "IPOHE6S");
+                put("x:system", "YunOS5.0");
+            }
+        });
         try {
             PutObjectResult putResult = oss.putObject(put);
             Log.e("PutObject", "UploadSuccess");

@@ -135,10 +135,6 @@ public class DialogActivity extends AppCompatActivity {
     }
 
     private void addListeners() {
-        //解决一个问题，输入框获得焦点的时候，自动把recycle view滚动到最低端
-        rv_dialog.getViewTreeObserver().addOnGlobalLayoutListener(() -> {
-            rv_dialog.scrollToPosition(messageAdapter.getItemCount() - 1);
-        });
         //发送消息按钮
         btn_send.setOnClickListener(v -> {
             String input = et_input.getText().toString();

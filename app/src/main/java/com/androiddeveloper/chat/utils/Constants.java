@@ -1,7 +1,8 @@
 package com.androiddeveloper.chat.utils;
 
 public class Constants {
-    public static final String SERVER = "http://java8.icu:5007/chat-server";
+//    public static final String SERVER = "http://java8.icu:5007/chat-server";
+    public static final String SERVER = "http://10.187.10.62:5007/chat-server";
 //    public static final String SERVER = "http://10.4.137.239:5007/chat-server";
 
     public static final String KEY_USER_ID = "userId";

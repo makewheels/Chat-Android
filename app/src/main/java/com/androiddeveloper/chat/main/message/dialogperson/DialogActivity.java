@@ -6,10 +6,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.graphics.drawable.Drawable;
-import android.media.AudioFormat;
-import android.media.AudioManager;
-import android.media.AudioRecord;
-import android.media.AudioTrack;
 import android.media.MediaRecorder;
 import android.os.Bundle;
 import android.widget.Button;
@@ -29,23 +25,29 @@ import com.androiddeveloper.chat.common.Code;
 import com.androiddeveloper.chat.common.Result;
 import com.androiddeveloper.chat.jpush.PullMessageResponse;
 import com.androiddeveloper.chat.main.message.conversation.Conversation;
+import com.androiddeveloper.chat.oss.CredentialProvider;
+import com.androiddeveloper.chat.oss.OssCredential;
+import com.androiddeveloper.chat.oss.UploadUtil;
 import com.androiddeveloper.chat.utils.MessageType;
 import com.androiddeveloper.chat.utils.UserUtil;
 import com.androiddeveloper.chat.utils.http.CallBackUtil;
 import com.androiddeveloper.chat.utils.http.HttpUtil;
 import com.permissionx.guolindev.PermissionX;
+import com.tencent.cos.xml.exception.CosXmlClientException;
+import com.tencent.cos.xml.exception.CosXmlServiceException;
+import com.tencent.cos.xml.listener.CosXmlProgressListener;
+import com.tencent.cos.xml.listener.CosXmlResultListener;
+import com.tencent.cos.xml.model.CosXmlRequest;
+import com.tencent.cos.xml.model.CosXmlResult;
+import com.tencent.cos.xml.transfer.COSXMLUploadTask;
+import com.tencent.cos.xml.transfer.TransferManager;
+import com.tencent.cos.xml.transfer.TransferState;
+import com.tencent.cos.xml.transfer.TransferStateListener;
 
 import org.apache.commons.lang3.StringUtils;
 
-import java.io.BufferedInputStream;
-import java.io.BufferedOutputStream;
-import java.io.DataInputStream;
-import java.io.DataOutputStream;
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
@@ -213,49 +215,118 @@ public class DialogActivity extends AppCompatActivity {
 
     //发送录音文件
     private void recordAndSendAudio() {
-        new Thread() {
+        //录音
+//                File file = new File(getFilesDir().getPath()
+//                        + "/" + System.currentTimeMillis() + ".pcm");
+        File file = new File(getFilesDir().getPath()
+                + "/阿里巴巴Java开发...1528268103.pdf");
+
+        //发消息
+        Map<String, String> paramsMap = new HashMap<>();
+        paramsMap.put("conversationId", conversation.getConversationId());
+        paramsMap.put("messageType", MessageType.AUDIO);
+        HttpUtil.post("/message/person/sendMessage", paramsMap, new CallBackUtil.CallBackString() {
             @Override
-            public void run() {
-                File file = new File(getFilesDir().getPath() + "/" + System.currentTimeMillis() + ".pcm");
-                recordAudio(file);
+            public void onFailure(Call call, Exception e) {
+                Toasty.error(DialogActivity.this,
+                        "person sendMessage onFailure " + R.string.error_occurred_please_retry,
+                        Toast.LENGTH_SHORT).show();
+                e.printStackTrace();
             }
-        }.start();
+
+            @Override
+            public void onResponse(String response) {
+                Result<SendMessageResponse> result
+                        = JSON.parseObject(response,
+                        new TypeReference<Result<SendMessageResponse>>(Result.class) {
+                        });
+                if (result.getCode() != Code.SUCCESS) {
+                    Toasty.error(DialogActivity.this, result.getMessage(),
+                            Toast.LENGTH_SHORT).show();
+                    return;
+                }
+                //到这里，说明是发送成功了
+                //更新recycle view
+                SendMessageResponse sendMessageResponse = result.getData();
+                PersonMessage personMessage = new PersonMessage();
+                personMessage.setMessageId(sendMessageResponse.getMessageId());
+                personMessage.setConversationId(sendMessageResponse.getConversationId());
+                personMessage.setFromUserId(sendMessageResponse.getFromUserId());
+                personMessage.setToUserId(sendMessageResponse.getToUserId());
+                personMessage.setSenderHeadUrl(UserUtil.headImageUrl);
+                personMessage.setIsSend(true);
+                personMessage.setMessageType(MessageType.AUDIO);
+                personMessage.setCreateTime(sendMessageResponse.getCreateTime());
+                addMessage(personMessage);
+            }
+        });
     }
 
-    /**
-     * 录音
-     */
-    private void recordAudio(File file) {
-        int frequency = 8000;
-        int channelConfiguration = AudioFormat.CHANNEL_IN_MONO;
-        int audioEncoding = AudioFormat.ENCODING_PCM_8BIT;
-        int bufferSize = AudioRecord.getMinBufferSize(frequency, channelConfiguration, audioEncoding);
-        AudioRecord audioRecord = new AudioRecord(MediaRecorder.AudioSource.MIC,
-                frequency, channelConfiguration, audioEncoding, bufferSize);
-        try {
-            DataOutputStream dataOutputStream = new DataOutputStream(
-                    new BufferedOutputStream(new FileOutputStream(file)));
-            short[] buffer = new short[bufferSize];
-            audioRecord.startRecording();
-            isRecording = true;
-            while (isRecording) {
-                int bufferReadResult = audioRecord.read(buffer, 0, bufferSize);
-                for (int i = 0; i < bufferReadResult; i++) {
-                    dataOutputStream.writeShort(buffer[i]);
+
+    private void uploadAudio() {
+        OssCredential ossCredential = new OssCredential();
+        CredentialProvider credentialProvider = new CredentialProvider(ossCredential);
+        TransferManager transferManager
+                = UploadUtil.getTransferManager(
+                DialogActivity.this, "ap-beijing", credentialProvider);
+        // 上传文件
+        COSXMLUploadTask cosxmlUploadTask = transferManager.upload("bucket", "object",
+                "file.getPath()", null);
+
+        //设置上传进度回调
+        cosxmlUploadTask.setCosXmlProgressListener(new CosXmlProgressListener() {
+            @Override
+            public void onProgress(long complete, long target) {
+                // todo Do something to update progress...
+            }
+        });
+        //设置返回结果回调
+        cosxmlUploadTask.setCosXmlResultListener(new CosXmlResultListener() {
+            @Override
+            public void onSuccess(CosXmlRequest request, CosXmlResult result) {
+                COSXMLUploadTask.COSXMLUploadTaskResult cOSXMLUploadTaskResult =
+                        (COSXMLUploadTask.COSXMLUploadTaskResult) result;
+            }
+
+            @Override
+            public void onFail(CosXmlRequest request,
+                               CosXmlClientException clientException,
+                               CosXmlServiceException serviceException) {
+                if (clientException != null) {
+                    clientException.printStackTrace();
+                } else {
+                    serviceException.printStackTrace();
                 }
             }
-            audioRecord.stop();
-            audioRecord.release();
-            dataOutputStream.close();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+        });
+        //设置任务状态回调, 可以查看任务过程
+        cosxmlUploadTask.setTransferStateListener(new TransferStateListener() {
+            @Override
+            public void onStateChanged(TransferState state) {
+                // todo notify transfer state
+            }
+        });
+    }
+
+    //录音
+    private void recordAudio(File file) throws IOException {
+        MediaRecorder recorder = new MediaRecorder();
+        recorder.setAudioSource(MediaRecorder.AudioSource.MIC);
+        recorder.setOutputFormat(MediaRecorder.OutputFormat.AAC_ADTS);
+        recorder.setAudioEncoder(MediaRecorder.AudioEncoder.AMR_NB);
+//        recorder.setOutputFile(file);
+        recorder.prepare();
+        recorder.start();
+    }
+
+    //播放文件
+    public void playAudio(File file) {
     }
 
     //从相册中选图片
     private void pickImage() {
         isRecording = false;
-        PlayRecord(new File(getFilesDir().getPath() + "/" +
+        playAudio(new File(getFilesDir().getPath() + "/" +
                 "1613741048427.pcm"));
     }
 
@@ -265,33 +336,6 @@ public class DialogActivity extends AppCompatActivity {
         //滑动到最低端
         rv_dialog.scrollToPosition(messageAdapter.getItemCount() - 1);
         //写入数据库
-    }
-
-    //播放文件
-    public void PlayRecord(File file) {
-        int musicLength = (int) (file.length() / 2);
-        short[] music = new short[musicLength];
-        try {
-            InputStream is = new FileInputStream(file);
-            BufferedInputStream bis = new BufferedInputStream(is);
-            DataInputStream dis = new DataInputStream(bis);
-            int i = 0;
-            while (dis.available() > 0) {
-                music[i] = dis.readShort();
-                i++;
-            }
-            dis.close();
-            AudioTrack audioTrack = new AudioTrack(AudioManager.STREAM_MUSIC,
-                    8000, AudioFormat.CHANNEL_OUT_MONO,
-                    AudioFormat.ENCODING_PCM_8BIT,
-                    musicLength * 2,
-                    AudioTrack.MODE_STREAM);
-            audioTrack.play();
-            audioTrack.write(music, 0, musicLength);
-            audioTrack.stop();
-        } catch (Throwable t) {
-            t.printStackTrace();
-        }
     }
 
     /**

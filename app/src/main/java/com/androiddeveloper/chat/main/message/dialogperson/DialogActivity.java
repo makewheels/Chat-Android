@@ -8,6 +8,7 @@ import android.content.IntentFilter;
 import android.graphics.drawable.Drawable;
 import android.media.MediaRecorder;
 import android.os.Bundle;
+import android.util.Log;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
@@ -26,7 +27,6 @@ import com.androiddeveloper.chat.common.Result;
 import com.androiddeveloper.chat.jpush.PullMessageResponse;
 import com.androiddeveloper.chat.main.message.conversation.Conversation;
 import com.androiddeveloper.chat.oss.CredentialProvider;
-import com.androiddeveloper.chat.oss.OssCredential;
 import com.androiddeveloper.chat.oss.UploadUtil;
 import com.androiddeveloper.chat.utils.MessageType;
 import com.androiddeveloper.chat.utils.UserUtil;
@@ -259,29 +259,29 @@ public class DialogActivity extends AppCompatActivity {
                 personMessage.setCreateTime(sendMessageResponse.getCreateTime());
                 addMessage(personMessage);
                 //如果需要上传文件，则上传
-                if (sendMessageResponse.getIsNeedUpload()){
-                    uploadAudio();
-                }
+                if (sendMessageResponse.getIsNeedUpload())
+                    uploadAudio(sendMessageResponse, file);
             }
         });
     }
 
-
-    private void uploadAudio() {
-        OssCredential ossCredential = new OssCredential();
-        CredentialProvider credentialProvider = new CredentialProvider(ossCredential);
+    //上传文件
+    private void uploadAudio(SendMessageResponse response, File file) {
+        CredentialProvider credentialProvider
+                = new CredentialProvider(response.getOssCredential());
         TransferManager transferManager
                 = UploadUtil.getTransferManager(
-                DialogActivity.this, "ap-beijing", credentialProvider);
+                DialogActivity.this, response.getRegion(), credentialProvider);
         // 上传文件
-        COSXMLUploadTask cosxmlUploadTask = transferManager.upload("bucket", "object",
-                "file.getPath()", null);
+        COSXMLUploadTask cosxmlUploadTask
+                = transferManager.upload(response.getBucket(), response.getObject(),
+                file.getPath(), null);
 
         //设置上传进度回调
         cosxmlUploadTask.setCosXmlProgressListener(new CosXmlProgressListener() {
             @Override
             public void onProgress(long complete, long target) {
-                // todo Do something to update progress...
+                Log.e("tag", complete + " / " + target);
             }
         });
         //设置返回结果回调

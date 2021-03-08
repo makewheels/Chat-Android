@@ -258,6 +258,10 @@ public class DialogActivity extends AppCompatActivity {
                 personMessage.setMessageType(MessageType.AUDIO);
                 personMessage.setCreateTime(sendMessageResponse.getCreateTime());
                 addMessage(personMessage);
+                //如果需要上传文件，则上传
+                if (sendMessageResponse.getIsNeedUpload()){
+                    uploadAudio();
+                }
             }
         });
     }

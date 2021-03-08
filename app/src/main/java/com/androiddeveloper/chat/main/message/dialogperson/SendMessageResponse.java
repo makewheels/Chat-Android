@@ -1,5 +1,7 @@
 package com.androiddeveloper.chat.main.message.dialogperson;
 
+import com.androiddeveloper.chat.oss.OssCredential;
+
 import java.util.Date;
 
 import lombok.Data;
@@ -11,13 +13,16 @@ import lombok.Data;
 @Data
 public class SendMessageResponse {
     private String messageId;
-
     private String conversationId;
-
     private String fromUserId;
-
     private String toUserId;
-
     private Date createTime;
 
+    //以下只有在上传文件的时候才调用
+    private String bucket;
+    private String object;
+
+    private Boolean isNeedUpload;
+
+    private OssCredential ossCredential;
 }

@@ -199,7 +199,7 @@ public class DialogActivity extends AppCompatActivity {
                                     Toast.LENGTH_SHORT).show();
                             return;
                         }
-                        sendAudio();
+                        recordAndSendAudio();
                     });
         });
 
@@ -212,7 +212,7 @@ public class DialogActivity extends AppCompatActivity {
     private boolean isRecording = false;
 
     //发送录音文件
-    private void sendAudio() {
+    private void recordAndSendAudio() {
         new Thread() {
             @Override
             public void run() {

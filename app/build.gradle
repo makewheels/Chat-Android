@@ -75,7 +75,12 @@ dependencies {
     testImplementation 'junit:junit:4.13.1'
     androidTestImplementation 'androidx.test.ext:junit:1.1.2'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.3.0'
+    implementation 'com.android.support:multidex:1.0.3'
 
+    implementation 'org.projectlombok:lombok:1.18.16'
+    annotationProcessor 'org.projectlombok:lombok:1.18.16'
+
+//    极光推送
     implementation 'cn.jiguang.sdk:jcore:2.6.0'
     implementation 'cn.jiguang.sdk:jpush:3.9.1'
 
@@ -83,23 +88,25 @@ dependencies {
     implementation 'com.squareup.okhttp3:okhttp:3.12.0'
     implementation 'com.github.GrenderG:Toasty:1.5.0'
 
-    implementation 'org.projectlombok:lombok:1.18.16'
-    annotationProcessor 'org.projectlombok:lombok:1.18.16'
-
     implementation 'com.alibaba:fastjson:1.2.75'
-    implementation 'com.aliyun.dpa:oss-android-sdk:2.9.5'
 
+    //oss对象存储
+//    implementation 'com.aliyun.dpa:oss-android-sdk:2.9.5'
+    implementation 'com.tencent.qcloud:cosxml:5.6.0'
+
+//    Glide
     implementation 'com.github.bumptech.glide:glide:4.12.0'
     annotationProcessor 'com.github.bumptech.glide:compiler:4.12.0'
 
+//    commons
     implementation group: 'org.apache.commons', name: 'commons-lang3', version: '3.11'
     implementation group: 'commons-io', name: 'commons-io', version: '2.8.0'
     implementation group: 'org.apache.commons', name: 'commons-collections4', version: '4.4'
 
+//    bugly
     implementation 'com.tencent.bugly:crashreport:3.3.3'
     implementation 'com.tencent.bugly:nativecrashreport:3.7.700'
 
-    implementation 'com.android.support:multidex:1.0.3'
     implementation 'com.permissionx.guolindev:permissionx:1.4.0'
 
 //    implementation 'com.tencent.liteav:LiteAVSDK_TRTC:8.4.9947'

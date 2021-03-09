@@ -219,12 +219,17 @@ public class DialogActivity extends AppCompatActivity {
 //                File file = new File(getFilesDir().getPath()
 //                        + "/" + System.currentTimeMillis() + ".pcm");
         File file = new File(getFilesDir().getPath()
-                + "/阿里巴巴Java开发...1528268103.pdf");
+                + "/阿里巴巴 Java 开发手册.pdf");
 
         //发消息
         Map<String, String> paramsMap = new HashMap<>();
         paramsMap.put("conversationId", conversation.getConversationId());
         paramsMap.put("messageType", MessageType.AUDIO);
+//        paramsMap.put("md5", "69d266e25891bfe24665abcb9244b7ab");
+        paramsMap.put("md5", System.currentTimeMillis() + "");
+        paramsMap.put("originalFilename", file.getName());
+        paramsMap.put("size", "68689920");
+        paramsMap.put("duration", "3520");
         HttpUtil.post("/message/person/sendMessage", paramsMap, new CallBackUtil.CallBackString() {
             @Override
             public void onFailure(Call call, Exception e) {
@@ -246,21 +251,22 @@ public class DialogActivity extends AppCompatActivity {
                     return;
                 }
                 //到这里，说明是发送成功了
-                //更新recycle view
                 SendMessageResponse sendMessageResponse = result.getData();
-                PersonMessage personMessage = new PersonMessage();
-                personMessage.setMessageId(sendMessageResponse.getMessageId());
-                personMessage.setConversationId(sendMessageResponse.getConversationId());
-                personMessage.setFromUserId(sendMessageResponse.getFromUserId());
-                personMessage.setToUserId(sendMessageResponse.getToUserId());
-                personMessage.setSenderHeadUrl(UserUtil.headImageUrl);
-                personMessage.setIsSend(true);
-                personMessage.setMessageType(MessageType.AUDIO);
-                personMessage.setCreateTime(sendMessageResponse.getCreateTime());
-                addMessage(personMessage);
                 //如果需要上传文件，则上传
-                if (sendMessageResponse.getIsNeedUpload())
+                if (sendMessageResponse.getIsNeedUpload()) {
                     uploadAudio(sendMessageResponse, file);
+                }
+                //更新recycle view
+//                PersonMessage personMessage = new PersonMessage();
+//                personMessage.setMessageId(sendMessageResponse.getMessageId());
+//                personMessage.setConversationId(sendMessageResponse.getConversationId());
+//                personMessage.setFromUserId(sendMessageResponse.getFromUserId());
+//                personMessage.setToUserId(sendMessageResponse.getToUserId());
+//                personMessage.setSenderHeadUrl(UserUtil.headImageUrl);
+//                personMessage.setIsSend(true);
+//                personMessage.setMessageType(MessageType.AUDIO);
+//                personMessage.setCreateTime(sendMessageResponse.getCreateTime());
+//                addMessage(personMessage);
             }
         });
     }

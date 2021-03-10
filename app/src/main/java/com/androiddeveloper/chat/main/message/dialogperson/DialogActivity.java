@@ -256,17 +256,6 @@ public class DialogActivity extends AppCompatActivity {
                 if (sendMessageResponse.getIsNeedUpload()) {
                     uploadAudio(sendMessageResponse, file);
                 }
-                //更新recycle view
-//                PersonMessage personMessage = new PersonMessage();
-//                personMessage.setMessageId(sendMessageResponse.getMessageId());
-//                personMessage.setConversationId(sendMessageResponse.getConversationId());
-//                personMessage.setFromUserId(sendMessageResponse.getFromUserId());
-//                personMessage.setToUserId(sendMessageResponse.getToUserId());
-//                personMessage.setSenderHeadUrl(UserUtil.headImageUrl);
-//                personMessage.setIsSend(true);
-//                personMessage.setMessageType(MessageType.AUDIO);
-//                personMessage.setCreateTime(sendMessageResponse.getCreateTime());
-//                addMessage(personMessage);
             }
         });
     }
@@ -313,7 +302,56 @@ public class DialogActivity extends AppCompatActivity {
         cosxmlUploadTask.setTransferStateListener(new TransferStateListener() {
             @Override
             public void onStateChanged(TransferState state) {
-                // todo notify transfer state
+                //当上传完成时，通知应用服务器
+                if (state == TransferState.COMPLETED) {
+                    onUploadFileFinish(response, file);
+                }
+            }
+        });
+    }
+
+    /**
+     * 当上传文件完成时
+     *
+     * @param response
+     * @param file
+     */
+    private void onUploadFileFinish(SendMessageResponse response, File file) {
+        Map<String, String> paramsMap = new HashMap<>();
+        String messageId = response.getMessageId();
+        paramsMap.put("messageId", messageId);
+        HttpUtil.post("/message/person/uploadFileFinish", paramsMap, new CallBackUtil.CallBackString() {
+            @Override
+            public void onFailure(Call call, Exception e) {
+                Toasty.error(DialogActivity.this,
+                        "person uploadFileFinish onFailure " + R.string.error_occurred_please_retry,
+                        Toast.LENGTH_SHORT).show();
+                e.printStackTrace();
+            }
+
+            @Override
+            public void onResponse(String response) {
+                Result<SendMessageResponse> result
+                        = JSON.parseObject(response,
+                        new TypeReference<Result<SendMessageResponse>>(Result.class) {
+                        });
+                if (result.getCode() != Code.SUCCESS) {
+                    Toasty.error(DialogActivity.this, result.getMessage(),
+                            Toast.LENGTH_SHORT).show();
+                }
+                //通知成功，那么现在上传文件都完成了
+
+                //更新recycle view
+//                PersonMessage personMessage = new PersonMessage();
+//                personMessage.setMessageId(sendMessageResponse.getMessageId());
+//                personMessage.setConversationId(sendMessageResponse.getConversationId());
+//                personMessage.setFromUserId(sendMessageResponse.getFromUserId());
+//                personMessage.setToUserId(sendMessageResponse.getToUserId());
+//                personMessage.setSenderHeadUrl(UserUtil.headImageUrl);
+//                personMessage.setIsSend(true);
+//                personMessage.setMessageType(MessageType.AUDIO);
+//                personMessage.setCreateTime(sendMessageResponse.getCreateTime());
+//                addMessage(personMessage);
             }
         });
     }

@@ -44,9 +44,11 @@ import com.tencent.cos.xml.transfer.TransferManager;
 import com.tencent.cos.xml.transfer.TransferState;
 import com.tencent.cos.xml.transfer.TransferStateListener;
 
+import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.lang3.StringUtils;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -207,7 +209,7 @@ public class DialogActivity extends AppCompatActivity {
 
         //图片按钮
         btn_image.setOnClickListener(v -> {
-            pickImage();
+            pickAndSendImage();
         });
     }
 
@@ -216,19 +218,35 @@ public class DialogActivity extends AppCompatActivity {
     //发送录音文件
     private void recordAndSendAudio() {
         //录音
-//                File file = new File(getFilesDir().getPath()
-//                        + "/" + System.currentTimeMillis() + ".pcm");
         File file = new File(getFilesDir().getPath()
-                + "/阿里巴巴 Java 开发手册.pdf");
+                + "/" + System.currentTimeMillis() + ".amr");
+//        File file = new File(getFilesDir().getPath()
+//                + "/阿里巴巴 Java 开发手册.pdf");
+        MediaRecorder mediaRecorder = new MediaRecorder();
+        mediaRecorder.setAudioSource(MediaRecorder.AudioSource.MIC);
+        mediaRecorder.setOutputFormat(MediaRecorder.OutputFormat.DEFAULT);
+        mediaRecorder.setOutputFile(file);
+        mediaRecorder.setAudioEncoder(MediaRecorder.AudioEncoder.AAC);
+        try {
+            mediaRecorder.prepare();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        mediaRecorder.start();
 
-        //发消息
+        String md5 = null;
+        try {
+            md5 = DigestUtils.md5Hex(new FileInputStream(file));
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        //发语音消息
         Map<String, String> paramsMap = new HashMap<>();
         paramsMap.put("conversationId", conversation.getConversationId());
         paramsMap.put("messageType", MessageType.AUDIO);
-//        paramsMap.put("md5", "69d266e25891bfe24665abcb9244b7ab");
-        paramsMap.put("md5", System.currentTimeMillis() + "");
+        paramsMap.put("md5", md5);
         paramsMap.put("originalFilename", file.getName());
-        paramsMap.put("size", "68689920");
+        paramsMap.put("size", file.length() + "");
         paramsMap.put("duration", "3520");
         HttpUtil.post("/message/person/sendMessage", paramsMap, new CallBackUtil.CallBackString() {
             @Override
@@ -372,7 +390,7 @@ public class DialogActivity extends AppCompatActivity {
     }
 
     //从相册中选图片
-    private void pickImage() {
+    private void pickAndSendImage() {
         isRecording = false;
         playAudio(new File(getFilesDir().getPath() + "/" +
                 "1613741048427.pcm"));

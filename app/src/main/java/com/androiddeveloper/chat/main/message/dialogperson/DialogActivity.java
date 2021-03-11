@@ -6,7 +6,10 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.graphics.drawable.Drawable;
+import android.media.AudioFormat;
+import android.media.AudioRecord;
 import android.media.MediaRecorder;
+import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
 import android.widget.Button;
@@ -47,8 +50,11 @@ import com.tencent.cos.xml.transfer.TransferStateListener;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.lang3.StringUtils;
 
+import java.io.BufferedOutputStream;
+import java.io.DataOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -136,6 +142,7 @@ public class DialogActivity extends AppCompatActivity {
                 pullPersonMessage(messageId);
             }
         }
+
     }
 
     private void addListeners() {
@@ -209,11 +216,64 @@ public class DialogActivity extends AppCompatActivity {
 
         //图片按钮
         btn_image.setOnClickListener(v -> {
-            pickAndSendImage();
+            if (!isRecording)
+                new Thread() {
+                    @Override
+                    public void run() {
+                        recordAudio();
+                    }
+                }.start();
+            else
+                stopRecord();
         });
     }
 
     private boolean isRecording = false;
+    private AudioRecord audioRecord;
+
+    private void recordAudio() {
+        int mAudioSource = MediaRecorder.AudioSource.MIC;
+        int sampleRateInHz = 16000;
+        int channelConfig = AudioFormat.CHANNEL_OUT_MONO;
+        int audioFormat = AudioFormat.ENCODING_PCM_16BIT;
+        int bufferSize = AudioRecord.getMinBufferSize(sampleRateInHz, channelConfig, audioFormat);
+        audioRecord = new AudioRecord(mAudioSource, sampleRateInHz, channelConfig,
+                audioFormat, bufferSize);
+        isRecording = true;
+
+        File file = new File(getFilesDir().getPath()
+                + "/" + System.currentTimeMillis() + ".pcm");
+        try {
+            DataOutputStream dataOutputStream = new DataOutputStream(
+                    new BufferedOutputStream(
+                            new FileOutputStream(file)));
+            byte[] buffer = new byte[bufferSize];
+            audioRecord.startRecording();
+            while (isRecording
+                    && audioRecord.getRecordingState() == AudioRecord.RECORDSTATE_RECORDING) {
+                int bufferReadResult = audioRecord.read(buffer, 0, bufferSize);
+                for (int i = 0; i < bufferReadResult; i++) {
+                    dataOutputStream.write(buffer[i]);
+                }
+            }
+            dataOutputStream.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    //停止录音
+    private void stopRecord() {
+        isRecording = false;
+        if (audioRecord != null) {
+            if (audioRecord.getRecordingState() == AudioRecord.RECORDSTATE_RECORDING) {
+                audioRecord.stop();
+            }
+            if (audioRecord.getState() == AudioRecord.STATE_INITIALIZED) {
+                audioRecord.release();
+            }
+        }
+    }
 
     //发送录音文件
     private void recordAndSendAudio() {
@@ -225,7 +285,9 @@ public class DialogActivity extends AppCompatActivity {
         MediaRecorder mediaRecorder = new MediaRecorder();
         mediaRecorder.setAudioSource(MediaRecorder.AudioSource.MIC);
         mediaRecorder.setOutputFormat(MediaRecorder.OutputFormat.DEFAULT);
-        mediaRecorder.setOutputFile(file);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            mediaRecorder.setOutputFile(file);
+        }
         mediaRecorder.setAudioEncoder(MediaRecorder.AudioEncoder.AAC);
         try {
             mediaRecorder.prepare();
@@ -372,28 +434,6 @@ public class DialogActivity extends AppCompatActivity {
 //                addMessage(personMessage);
             }
         });
-    }
-
-    //录音
-    private void recordAudio(File file) throws IOException {
-        MediaRecorder recorder = new MediaRecorder();
-        recorder.setAudioSource(MediaRecorder.AudioSource.MIC);
-        recorder.setOutputFormat(MediaRecorder.OutputFormat.AAC_ADTS);
-        recorder.setAudioEncoder(MediaRecorder.AudioEncoder.AMR_NB);
-//        recorder.setOutputFile(file);
-        recorder.prepare();
-        recorder.start();
-    }
-
-    //播放文件
-    public void playAudio(File file) {
-    }
-
-    //从相册中选图片
-    private void pickAndSendImage() {
-        isRecording = false;
-        playAudio(new File(getFilesDir().getPath() + "/" +
-                "1613741048427.pcm"));
     }
 
     public void addMessage(PersonMessage personMessage) {

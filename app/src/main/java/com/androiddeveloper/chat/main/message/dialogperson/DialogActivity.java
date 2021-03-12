@@ -8,7 +8,9 @@ import android.content.IntentFilter;
 import android.graphics.drawable.Drawable;
 import android.media.AudioFormat;
 import android.media.AudioRecord;
+import android.media.MediaPlayer;
 import android.media.MediaRecorder;
+import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
 import android.widget.Button;
@@ -218,6 +220,22 @@ public class DialogActivity extends AppCompatActivity {
 
         //图片按钮
         btn_image.setOnClickListener(v -> {
+            File recordedFile = new File(getFilesDir(),
+                    "/chat/user1a9a80964bc44183b72d36742742aa7d/audio/1615561782854.wav");
+
+            new Thread() {
+                @Override
+                public void run() {
+                    MediaPlayer recordedSong = MediaPlayer.create(
+                            DialogActivity.this, Uri.fromFile(recordedFile));
+                    try {
+                        recordedSong.prepare();
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                    recordedSong.start();
+                }
+            }.start();
         });
     }
 
@@ -278,6 +296,9 @@ public class DialogActivity extends AppCompatActivity {
         pcmFile.delete();
         pcmFile = null;
 
+        //获取音频时长
+        long duration = 0;
+
         //发语音消息
         String md5 = null;
         try {
@@ -291,7 +312,7 @@ public class DialogActivity extends AppCompatActivity {
         paramsMap.put("md5", md5);
         paramsMap.put("originalFilename", wavFile.getName());
         paramsMap.put("size", wavFile.length() + "");
-        paramsMap.put("duration", "3520");
+        paramsMap.put("duration", duration + "");
         HttpUtil.post("/message/person/sendMessage", paramsMap, new CallBackUtil.CallBackString() {
             @Override
             public void onFailure(Call call, Exception e) {

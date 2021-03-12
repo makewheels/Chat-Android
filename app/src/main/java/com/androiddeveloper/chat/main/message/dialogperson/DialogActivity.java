@@ -9,7 +9,6 @@ import android.graphics.drawable.Drawable;
 import android.media.AudioFormat;
 import android.media.AudioRecord;
 import android.media.MediaRecorder;
-import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
 import android.widget.Button;
@@ -31,7 +30,9 @@ import com.androiddeveloper.chat.jpush.PullMessageResponse;
 import com.androiddeveloper.chat.main.message.conversation.Conversation;
 import com.androiddeveloper.chat.oss.CredentialProvider;
 import com.androiddeveloper.chat.oss.UploadUtil;
+import com.androiddeveloper.chat.utils.FilePathUtil;
 import com.androiddeveloper.chat.utils.MessageType;
+import com.androiddeveloper.chat.utils.Pcm2Wav;
 import com.androiddeveloper.chat.utils.UserUtil;
 import com.androiddeveloper.chat.utils.http.CallBackUtil;
 import com.androiddeveloper.chat.utils.http.HttpUtil;
@@ -48,6 +49,7 @@ import com.tencent.cos.xml.transfer.TransferState;
 import com.tencent.cos.xml.transfer.TransferStateListener;
 
 import org.apache.commons.codec.digest.DigestUtils;
+import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.StringUtils;
 
 import java.io.BufferedOutputStream;
@@ -216,37 +218,34 @@ public class DialogActivity extends AppCompatActivity {
 
         //图片按钮
         btn_image.setOnClickListener(v -> {
-            if (!isRecording)
-                new Thread() {
-                    @Override
-                    public void run() {
-                        recordAudio();
-                    }
-                }.start();
-            else
-                stopRecord();
         });
     }
 
     private boolean isRecording = false;
+    private File pcmFile;
+    private final int sampleRateInHz = 16000;
+    private final int channelConfig = AudioFormat.CHANNEL_IN_MONO;
+    private final int audioFormat = AudioFormat.ENCODING_PCM_16BIT;
+    private final int bufferSize = AudioRecord.getMinBufferSize(sampleRateInHz, channelConfig, audioFormat);
     private AudioRecord audioRecord;
 
+    /**
+     * 录音
+     */
     private void recordAudio() {
-        int mAudioSource = MediaRecorder.AudioSource.MIC;
-        int sampleRateInHz = 16000;
-        int channelConfig = AudioFormat.CHANNEL_OUT_MONO;
-        int audioFormat = AudioFormat.ENCODING_PCM_16BIT;
-        int bufferSize = AudioRecord.getMinBufferSize(sampleRateInHz, channelConfig, audioFormat);
-        audioRecord = new AudioRecord(mAudioSource, sampleRateInHz, channelConfig,
+        audioRecord = new AudioRecord(MediaRecorder.AudioSource.MIC, sampleRateInHz, channelConfig,
                 audioFormat, bufferSize);
         isRecording = true;
 
-        File file = new File(getFilesDir().getPath()
-                + "/" + System.currentTimeMillis() + ".pcm");
+        File audioFolder = new File(FilePathUtil.getAudioFolder());
+        if (!audioFolder.exists())
+            audioFolder.mkdirs();
+
+        pcmFile = new File(audioFolder, System.currentTimeMillis() + ".pcm");
         try {
-            DataOutputStream dataOutputStream = new DataOutputStream(
-                    new BufferedOutputStream(
-                            new FileOutputStream(file)));
+            FileOutputStream fileOutputStream = new FileOutputStream(pcmFile);
+            BufferedOutputStream bufferedOutputStream = new BufferedOutputStream(fileOutputStream);
+            DataOutputStream dataOutputStream = new DataOutputStream(bufferedOutputStream);
             byte[] buffer = new byte[bufferSize];
             audioRecord.startRecording();
             while (isRecording
@@ -266,49 +265,32 @@ public class DialogActivity extends AppCompatActivity {
     private void stopRecord() {
         isRecording = false;
         if (audioRecord != null) {
-            if (audioRecord.getRecordingState() == AudioRecord.RECORDSTATE_RECORDING) {
+            if (audioRecord.getRecordingState() == AudioRecord.RECORDSTATE_RECORDING)
                 audioRecord.stop();
-            }
-            if (audioRecord.getState() == AudioRecord.STATE_INITIALIZED) {
+            if (audioRecord.getState() == AudioRecord.STATE_INITIALIZED)
                 audioRecord.release();
-            }
         }
-    }
+        //文件转换
+        String filename = FilenameUtils.getBaseName(pcmFile.getName()) + ".wav";
+        File wavFile = new File(pcmFile.getParent(), filename);
+        Pcm2Wav.convert(pcmFile, wavFile, sampleRateInHz, audioFormat, 1, bufferSize);
+        //删除pcm文件
+        pcmFile.delete();
+        pcmFile = null;
 
-    //发送录音文件
-    private void recordAndSendAudio() {
-        //录音
-        File file = new File(getFilesDir().getPath()
-                + "/" + System.currentTimeMillis() + ".amr");
-//        File file = new File(getFilesDir().getPath()
-//                + "/阿里巴巴 Java 开发手册.pdf");
-        MediaRecorder mediaRecorder = new MediaRecorder();
-        mediaRecorder.setAudioSource(MediaRecorder.AudioSource.MIC);
-        mediaRecorder.setOutputFormat(MediaRecorder.OutputFormat.DEFAULT);
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            mediaRecorder.setOutputFile(file);
-        }
-        mediaRecorder.setAudioEncoder(MediaRecorder.AudioEncoder.AAC);
-        try {
-            mediaRecorder.prepare();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        mediaRecorder.start();
-
+        //发语音消息
         String md5 = null;
         try {
-            md5 = DigestUtils.md5Hex(new FileInputStream(file));
+            md5 = DigestUtils.md5Hex(new FileInputStream(wavFile));
         } catch (IOException e) {
             e.printStackTrace();
         }
-        //发语音消息
         Map<String, String> paramsMap = new HashMap<>();
         paramsMap.put("conversationId", conversation.getConversationId());
         paramsMap.put("messageType", MessageType.AUDIO);
         paramsMap.put("md5", md5);
-        paramsMap.put("originalFilename", file.getName());
-        paramsMap.put("size", file.length() + "");
+        paramsMap.put("originalFilename", wavFile.getName());
+        paramsMap.put("size", wavFile.length() + "");
         paramsMap.put("duration", "3520");
         HttpUtil.post("/message/person/sendMessage", paramsMap, new CallBackUtil.CallBackString() {
             @Override
@@ -334,10 +316,25 @@ public class DialogActivity extends AppCompatActivity {
                 SendMessageResponse sendMessageResponse = result.getData();
                 //如果需要上传文件，则上传
                 if (sendMessageResponse.getIsNeedUpload()) {
-                    uploadAudio(sendMessageResponse, file);
+                    uploadAudio(sendMessageResponse, wavFile);
                 }
             }
         });
+    }
+
+    //发送录音文件
+    private void recordAndSendAudio() {
+        //如果不在录音，那就开始录音
+        if (!isRecording)
+            new Thread() {
+                @Override
+                public void run() {
+                    recordAudio();
+                }
+            }.start();
+        else
+            //如果正在录音，再次点击按钮，就停止录音
+            stopRecord();
     }
 
     //上传文件

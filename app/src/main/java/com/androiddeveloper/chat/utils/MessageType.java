@@ -22,6 +22,9 @@ public class MessageType {
 
         String IMAGE_LEFT = IMAGE + "_left";
         String IMAGE_RIGHT = IMAGE + "_right";
+
+        String AUDIO_LEFT = AUDIO + "_left";
+        String AUDIO_RIGHT = AUDIO + "_right";
     }
 
     static {

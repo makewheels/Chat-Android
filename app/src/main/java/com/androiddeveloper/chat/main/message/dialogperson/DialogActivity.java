@@ -142,6 +142,7 @@ public class DialogActivity extends AppCompatActivity {
             //收到人的消息
             if (action.equals(ACTION_RECEIVE_PERSON_MESSAGE)) {
                 String messageId = intent.getStringExtra("messageId");
+                String messageType = intent.getStringExtra("messageType");
                 //拉取人的消息
                 pullPersonMessage(messageId);
             }

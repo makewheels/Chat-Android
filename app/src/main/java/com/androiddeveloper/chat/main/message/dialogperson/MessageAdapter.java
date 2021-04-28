@@ -104,7 +104,7 @@ public class MessageAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
         return messageList.size();
     }
 
-    class TextLeftHolder extends RecyclerView.ViewHolder {
+    static class TextLeftHolder extends RecyclerView.ViewHolder {
         TextView tv_text;
         ImageView iv_head;
 
@@ -115,7 +115,7 @@ public class MessageAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
         }
     }
 
-    class TextRightHolder extends RecyclerView.ViewHolder {
+    static class TextRightHolder extends RecyclerView.ViewHolder {
         TextView tv_text;
         ImageView iv_head;
 

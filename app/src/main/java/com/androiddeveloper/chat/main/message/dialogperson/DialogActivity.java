@@ -460,6 +460,7 @@ public class DialogActivity extends AppCompatActivity {
         messageAdapter.addMessage(personMessage);
         //滑动到最低端
         rv_dialog.scrollToPosition(messageAdapter.getItemCount() - 1);
+
         //写入数据库
     }
 
@@ -494,7 +495,7 @@ public class DialogActivity extends AppCompatActivity {
                 personMessage.setToUserId(data.getToUserId());
                 personMessage.setSenderHeadUrl(conversation.getHeadImageUrl());
                 personMessage.setIsSend(false);
-                personMessage.setMessageType(MessageType.TEXT);
+                personMessage.setMessageType(data.getMessageType());
                 personMessage.setContent(data.getContent());
                 personMessage.setCreateTime(data.getCreateTime());
                 //TODO 这里应该有一个判断，如果打开了这个conversation，那就添加到界面上

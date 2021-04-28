@@ -19,7 +19,7 @@ public class JpushHandler {
                 });
         String version = map.get("version");
         String cmd = map.get("cmd");
-        if (StringUtils.isNotBlank(version))
+        if (StringUtils.isEmpty(version))
             return;
         if (version.equals("1")) {
             //拉取消息

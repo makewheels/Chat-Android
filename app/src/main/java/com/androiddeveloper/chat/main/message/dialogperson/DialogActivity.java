@@ -225,19 +225,16 @@ public class DialogActivity extends AppCompatActivity {
             File recordedFile = new File(getFilesDir(),
                     "/chat/user1a9a80964bc44183b72d36742742aa7d/audio/1615561782854.wav");
 
-            new Thread() {
-                @Override
-                public void run() {
-                    MediaPlayer recordedSong = MediaPlayer.create(
-                            DialogActivity.this, Uri.fromFile(recordedFile));
-                    try {
-                        recordedSong.prepare();
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    }
-                    recordedSong.start();
+            new Thread(() -> {
+                MediaPlayer recordedSong = MediaPlayer.create(
+                        DialogActivity.this, Uri.fromFile(recordedFile));
+                try {
+                    recordedSong.prepare();
+                } catch (IOException e) {
+                    e.printStackTrace();
                 }
-            }.start();
+                recordedSong.start();
+            }).start();
         });
     }
 
@@ -257,15 +254,10 @@ public class DialogActivity extends AppCompatActivity {
                 audioFormat, bufferSize);
         isRecording = true;
 
-        File audioFolder = new File(FilePathUtil.getAudioFolder());
-        if (!audioFolder.exists())
-            audioFolder.mkdirs();
-
-        pcmFile = new File(audioFolder, System.currentTimeMillis() + ".pcm");
+        pcmFile = new File(FilePathUtil.getAudioFolder(), System.currentTimeMillis() + ".pcm");
         try {
-            FileOutputStream fileOutputStream = new FileOutputStream(pcmFile);
-            BufferedOutputStream bufferedOutputStream = new BufferedOutputStream(fileOutputStream);
-            DataOutputStream dataOutputStream = new DataOutputStream(bufferedOutputStream);
+            DataOutputStream dataOutputStream = new DataOutputStream(
+                    new BufferedOutputStream(new FileOutputStream(pcmFile)));
             byte[] buffer = new byte[bufferSize];
             audioRecord.startRecording();
             while (isRecording
@@ -292,6 +284,7 @@ public class DialogActivity extends AppCompatActivity {
         }
         //文件转换
         String filename = FilenameUtils.getBaseName(pcmFile.getName()) + ".wav";
+        //TODO 其实这里有问题，我录制的音频文件，应该放到最终位置，但是现在又不知道最终的文件名
         File wavFile = new File(pcmFile.getParent(), filename);
         Pcm2Wav.convert(pcmFile, wavFile, sampleRateInHz, audioFormat, 1, bufferSize);
         //删除pcm文件
@@ -453,28 +446,53 @@ public class DialogActivity extends AppCompatActivity {
         });
     }
 
-    public void addMessage(PersonMessage personMessage) {
+
+    /**
+     * 判断消息类型是不是文件
+     */
+    public boolean isFileTypeMessage(String messageType) {
+        return messageType.equals(MessageType.AUDIO)
+                || messageType.equals(MessageType.IMAGE)
+                || messageType.equals(MessageType.VIDEO);
+    }
+
+    /**
+     * 更新界面
+     *
+     * @param personMessage
+     */
+    private void updateDialog(PersonMessage personMessage) {
         //添加到dialog里
         messageAdapter.addMessage(personMessage);
         //滑动到最低端
         rv_dialog.scrollToPosition(messageAdapter.getItemCount() - 1);
+    }
 
-        //如果是文件类型消息，需要下载文件
+    public void addMessage(PersonMessage personMessage) {
+        //判断类型，看是否需要下载
         String messageType = personMessage.getMessageType();
-        if (messageType.equals(MessageType.AUDIO)) {
-            new Thread(() -> {
-                try {
-                    File file = new File(FilePathUtil.getAudioFolder()
-                            + "/" + personMessage.getConversationId()
-                            + "/" + personMessage.getFileName());
-                    FileUtils.copyURLToFile(new URL(personMessage.getFileUrl()), file);
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            }).start();
+        //如果不需要下载，直接更新界面
+        if (!isFileTypeMessage(messageType)) {
+            updateDialog(personMessage);
+        } else {
+            //需要下载文件
+            //判断消息类型
+            if (messageType.equals(MessageType.AUDIO)) {
+                //先下载，等待下载完成后，再更新界面
+                new Thread(() -> {
+                    try {
+                        FileUtils.copyURLToFile(new URL(personMessage.getFileUrl()),
+                                FilePathUtil.getFile(personMessage));
+                        runOnUiThread(() -> updateDialog(personMessage));
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                }).start();
+            }
         }
 
         //写入数据库
+
     }
 
     /**

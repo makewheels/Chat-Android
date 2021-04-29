@@ -51,6 +51,7 @@ import com.tencent.cos.xml.transfer.TransferState;
 import com.tencent.cos.xml.transfer.TransferStateListener;
 
 import org.apache.commons.codec.digest.DigestUtils;
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.StringUtils;
 
@@ -60,6 +61,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
@@ -460,6 +462,19 @@ public class DialogActivity extends AppCompatActivity {
         messageAdapter.addMessage(personMessage);
         //滑动到最低端
         rv_dialog.scrollToPosition(messageAdapter.getItemCount() - 1);
+
+        //如果是文件类型消息，需要下载文件
+        String messageType = personMessage.getMessageType();
+        if (messageType.equals(MessageType.AUDIO)) {
+            try {
+                File file = new File(FilePathUtil.getAudioFolder()
+                        + "/" + personMessage.getConversationId()
+                        + "/" + personMessage.getFileName());
+                FileUtils.copyURLToFile(new URL(personMessage.getFileUrl()), file);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
 
         //写入数据库
     }

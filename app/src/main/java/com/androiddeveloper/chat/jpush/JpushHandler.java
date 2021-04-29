@@ -36,7 +36,7 @@ public class JpushHandler {
                     context.sendBroadcast(intent);
 
                     //群消息
-                } else if (type.equals(Constants.CONVERSATION.TYPE_PERSON)) {
+                } else if (type.equals(Constants.CONVERSATION.TYPE_GROUP)) {
                     //TODO 极光推送收到，拉取群消息
                 }
             }

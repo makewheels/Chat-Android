@@ -318,10 +318,11 @@ public class DialogActivity extends AppCompatActivity {
                 SendMessageResponse sendMessageResponse = result.getData();
                 //给界面添加一条记录
                 PersonMessage personMessage = new PersonMessage();
+                personMessage.setSenderHeadUrl(UserUtil.headImageUrl);
                 personMessage.setIsSend(true);
                 personMessage.setMessageType(MessageType.AUDIO);
-                personMessage.setFileName(wavFile.getPath());
-                addMessage(personMessage);
+                personMessage.setFileName(wavFile.getName());
+                updateDialog(personMessage);
                 //如果需要上传文件，则上传
                 if (sendMessageResponse.getIsNeedUpload()) {
                     uploadFile(sendMessageResponse, wavFile);

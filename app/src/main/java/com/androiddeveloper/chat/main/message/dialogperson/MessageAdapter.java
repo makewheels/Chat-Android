@@ -63,23 +63,24 @@ public class MessageAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
         PersonMessage personMessage = messageList.get(position);
         String type = personMessage.getMessageType();
         Boolean isSend = personMessage.getIsSend();
-        if (type.equals(MessageType.TEXT)) {
-            if (isSend)
-                return MessageType.RC_TYPE.TEXT_RIGHT.hashCode();
-            else
-                return MessageType.RC_TYPE.TEXT_LEFT.hashCode();
-        } else if (type.equals(MessageType.IMAGE)) {
-            if (isSend)
-                return MessageType.RC_TYPE.IMAGE_RIGHT.hashCode();
-            else
-                return MessageType.RC_TYPE.IMAGE_LEFT.hashCode();
-        } else if (type.equals(MessageType.AUDIO)) {
-            if (isSend)
-                return MessageType.RC_TYPE.AUDIO_RIGHT.hashCode();
-            else
-                return MessageType.RC_TYPE.AUDIO_LEFT.hashCode();
-        } else {
-            return 0;
+        switch (type) {
+            case MessageType.TEXT:
+                if (isSend)
+                    return MessageType.RC_TYPE.TEXT_RIGHT.hashCode();
+                else
+                    return MessageType.RC_TYPE.TEXT_LEFT.hashCode();
+            case MessageType.IMAGE:
+                if (isSend)
+                    return MessageType.RC_TYPE.IMAGE_RIGHT.hashCode();
+                else
+                    return MessageType.RC_TYPE.IMAGE_LEFT.hashCode();
+            case MessageType.AUDIO:
+                if (isSend)
+                    return MessageType.RC_TYPE.AUDIO_RIGHT.hashCode();
+                else
+                    return MessageType.RC_TYPE.AUDIO_LEFT.hashCode();
+            default:
+                return 0;
         }
     }
 
@@ -121,6 +122,7 @@ public class MessageAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
         } else if (holder instanceof AudioRightHolder) {
             AudioRightHolder audioRightHolder = (AudioRightHolder) holder;
             audioRightHolder.tv_text.setText(personMessage.getFileName());
+            audioRightHolder.personMessage = personMessage;
             Glide.with(context).load(personMessage.getSenderHeadUrl()).into(audioRightHolder.iv_head);
         }
     }
@@ -178,6 +180,7 @@ public class MessageAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
     class AudioRightHolder extends RecyclerView.ViewHolder {
         TextView tv_text;
         ImageView iv_head;
+        PersonMessage personMessage;
 
         public AudioRightHolder(@NonNull View itemView) {
             super(itemView);

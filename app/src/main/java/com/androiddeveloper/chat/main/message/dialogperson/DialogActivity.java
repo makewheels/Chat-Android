@@ -5,12 +5,11 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.graphics.Color;
 import android.graphics.drawable.Drawable;
 import android.media.AudioFormat;
 import android.media.AudioRecord;
-import android.media.MediaPlayer;
 import android.media.MediaRecorder;
-import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
 import android.widget.Button;
@@ -47,7 +46,6 @@ import com.tencent.cos.xml.model.CosXmlResult;
 import com.tencent.cos.xml.transfer.COSXMLUploadTask;
 import com.tencent.cos.xml.transfer.TransferManager;
 import com.tencent.cos.xml.transfer.TransferState;
-import com.tencent.cos.xml.transfer.TransferStateListener;
 
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.io.FileUtils;
@@ -222,19 +220,7 @@ public class DialogActivity extends AppCompatActivity {
 
         //图片按钮
         btn_image.setOnClickListener(v -> {
-            File recordedFile = new File(getFilesDir(),
-                    "/chat/user1a9a80964bc44183b72d36742742aa7d/audio/1615561782854.wav");
-
-            new Thread(() -> {
-                MediaPlayer recordedSong = MediaPlayer.create(
-                        DialogActivity.this, Uri.fromFile(recordedFile));
-                try {
-                    recordedSong.prepare();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-                recordedSong.start();
-            }).start();
+            Toasty.success(DialogActivity.this, "IMAGE_BUTTON").show();
         });
     }
 
@@ -291,7 +277,7 @@ public class DialogActivity extends AppCompatActivity {
         pcmFile.delete();
         pcmFile = null;
 
-        //获取音频时长
+        //TODO 获取音频时长
         long duration = 0;
 
         //发语音消息
@@ -330,9 +316,15 @@ public class DialogActivity extends AppCompatActivity {
                 }
                 //到这里，说明是发送成功了
                 SendMessageResponse sendMessageResponse = result.getData();
+                //给界面添加一条记录
+                PersonMessage personMessage = new PersonMessage();
+                personMessage.setIsSend(true);
+                personMessage.setMessageType(MessageType.AUDIO);
+                personMessage.setFileName(wavFile.getPath());
+                addMessage(personMessage);
                 //如果需要上传文件，则上传
                 if (sendMessageResponse.getIsNeedUpload()) {
-                    uploadAudio(sendMessageResponse, wavFile);
+                    uploadFile(sendMessageResponse, wavFile);
                 }
             }
         });
@@ -341,20 +333,25 @@ public class DialogActivity extends AppCompatActivity {
     //发送录音文件
     private void recordAndSendAudio() {
         //如果不在录音，那就开始录音
-        if (!isRecording)
+        if (!isRecording) {
+            btn_audio.setText(R.string.recording);
+            btn_audio.setBackgroundColor(Color.RED);
             new Thread() {
                 @Override
                 public void run() {
                     recordAudio();
                 }
             }.start();
-        else
+        } else {
             //如果正在录音，再次点击按钮，就停止录音
+            btn_audio.setBackgroundColor(Color.parseColor("#6200EE"));
+            btn_audio.setText(R.string.audio);
             stopRecord();
+        }
     }
 
     //上传文件
-    private void uploadAudio(SendMessageResponse response, File file) {
+    private void uploadFile(SendMessageResponse response, File file) {
         CredentialProvider credentialProvider
                 = new CredentialProvider(response.getOssCredential());
         TransferManager transferManager
@@ -373,8 +370,8 @@ public class DialogActivity extends AppCompatActivity {
         cosxmlUploadTask.setCosXmlResultListener(new CosXmlResultListener() {
             @Override
             public void onSuccess(CosXmlRequest request, CosXmlResult result) {
-                COSXMLUploadTask.COSXMLUploadTaskResult cOSXMLUploadTaskResult =
-                        (COSXMLUploadTask.COSXMLUploadTaskResult) result;
+                COSXMLUploadTask.COSXMLUploadTaskResult cOSXMLUploadTaskResult
+                        = (COSXMLUploadTask.COSXMLUploadTaskResult) result;
             }
 
             @Override
@@ -389,13 +386,10 @@ public class DialogActivity extends AppCompatActivity {
             }
         });
         //设置任务状态回调, 可以查看任务过程
-        cosxmlUploadTask.setTransferStateListener(new TransferStateListener() {
-            @Override
-            public void onStateChanged(TransferState state) {
-                //当上传完成时，通知应用服务器
-                if (state == TransferState.COMPLETED) {
-                    onUploadFileFinish(response, file);
-                }
+        cosxmlUploadTask.setTransferStateListener(state -> {
+            //当上传完成时，通知应用服务器
+            if (state == TransferState.COMPLETED) {
+                onUploadFileFinish(response, file);
             }
         });
     }

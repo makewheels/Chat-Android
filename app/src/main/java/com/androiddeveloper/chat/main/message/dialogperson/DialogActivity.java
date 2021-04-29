@@ -41,7 +41,6 @@ import com.androiddeveloper.chat.utils.http.HttpUtil;
 import com.permissionx.guolindev.PermissionX;
 import com.tencent.cos.xml.exception.CosXmlClientException;
 import com.tencent.cos.xml.exception.CosXmlServiceException;
-import com.tencent.cos.xml.listener.CosXmlProgressListener;
 import com.tencent.cos.xml.listener.CosXmlResultListener;
 import com.tencent.cos.xml.model.CosXmlRequest;
 import com.tencent.cos.xml.model.CosXmlResult;
@@ -374,12 +373,9 @@ public class DialogActivity extends AppCompatActivity {
                 file.getPath(), null);
 
         //设置上传进度回调
-        cosxmlUploadTask.setCosXmlProgressListener(new CosXmlProgressListener() {
-            @Override
-            public void onProgress(long complete, long target) {
-                Log.e("tag", complete + " / " + target);
-            }
-        });
+        cosxmlUploadTask.setCosXmlProgressListener((complete, target) ->
+                Log.e("tag", complete + " / " + target)
+        );
         //设置返回结果回调
         cosxmlUploadTask.setCosXmlResultListener(new CosXmlResultListener() {
             @Override
@@ -466,14 +462,16 @@ public class DialogActivity extends AppCompatActivity {
         //如果是文件类型消息，需要下载文件
         String messageType = personMessage.getMessageType();
         if (messageType.equals(MessageType.AUDIO)) {
-            try {
-                File file = new File(FilePathUtil.getAudioFolder()
-                        + "/" + personMessage.getConversationId()
-                        + "/" + personMessage.getFileName());
-                FileUtils.copyURLToFile(new URL(personMessage.getFileUrl()), file);
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
+            new Thread(() -> {
+                try {
+                    File file = new File(FilePathUtil.getAudioFolder()
+                            + "/" + personMessage.getConversationId()
+                            + "/" + personMessage.getFileName());
+                    FileUtils.copyURLToFile(new URL(personMessage.getFileUrl()), file);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }).start();
         }
 
         //写入数据库
@@ -513,6 +511,11 @@ public class DialogActivity extends AppCompatActivity {
                 personMessage.setMessageType(data.getMessageType());
                 personMessage.setContent(data.getContent());
                 personMessage.setCreateTime(data.getCreateTime());
+
+                personMessage.setFileUrl(data.getFileUrl());
+                personMessage.setFileName(data.getFileName());
+                personMessage.setImagePreviewUrl(data.getImagePreviewUrl());
+
                 //TODO 这里应该有一个判断，如果打开了这个conversation，那就添加到界面上
                 //TODO 写入数据库
                 addMessage(personMessage);

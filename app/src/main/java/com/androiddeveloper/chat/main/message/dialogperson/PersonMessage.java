@@ -34,4 +34,5 @@ public class PersonMessage {
 
     private String fileUrl;
     private String fileName;
+    private String imagePreviewUrl;
 }

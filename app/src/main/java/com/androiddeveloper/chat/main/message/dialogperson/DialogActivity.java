@@ -5,12 +5,11 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.graphics.Color;
 import android.graphics.drawable.Drawable;
 import android.media.AudioFormat;
 import android.media.AudioRecord;
-import android.media.MediaPlayer;
 import android.media.MediaRecorder;
-import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
 import android.widget.Button;
@@ -41,16 +40,15 @@ import com.androiddeveloper.chat.utils.http.HttpUtil;
 import com.permissionx.guolindev.PermissionX;
 import com.tencent.cos.xml.exception.CosXmlClientException;
 import com.tencent.cos.xml.exception.CosXmlServiceException;
-import com.tencent.cos.xml.listener.CosXmlProgressListener;
 import com.tencent.cos.xml.listener.CosXmlResultListener;
 import com.tencent.cos.xml.model.CosXmlRequest;
 import com.tencent.cos.xml.model.CosXmlResult;
 import com.tencent.cos.xml.transfer.COSXMLUploadTask;
 import com.tencent.cos.xml.transfer.TransferManager;
 import com.tencent.cos.xml.transfer.TransferState;
-import com.tencent.cos.xml.transfer.TransferStateListener;
 
 import org.apache.commons.codec.digest.DigestUtils;
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.StringUtils;
 
@@ -60,6 +58,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
@@ -142,6 +141,7 @@ public class DialogActivity extends AppCompatActivity {
             //收到人的消息
             if (action.equals(ACTION_RECEIVE_PERSON_MESSAGE)) {
                 String messageId = intent.getStringExtra("messageId");
+                String messageType = intent.getStringExtra("messageType");
                 //拉取人的消息
                 pullPersonMessage(messageId);
             }
@@ -220,22 +220,7 @@ public class DialogActivity extends AppCompatActivity {
 
         //图片按钮
         btn_image.setOnClickListener(v -> {
-            File recordedFile = new File(getFilesDir(),
-                    "/chat/user1a9a80964bc44183b72d36742742aa7d/audio/1615561782854.wav");
-
-            new Thread() {
-                @Override
-                public void run() {
-                    MediaPlayer recordedSong = MediaPlayer.create(
-                            DialogActivity.this, Uri.fromFile(recordedFile));
-                    try {
-                        recordedSong.prepare();
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    }
-                    recordedSong.start();
-                }
-            }.start();
+            Toasty.success(DialogActivity.this, "IMAGE_BUTTON").show();
         });
     }
 
@@ -255,15 +240,10 @@ public class DialogActivity extends AppCompatActivity {
                 audioFormat, bufferSize);
         isRecording = true;
 
-        File audioFolder = new File(FilePathUtil.getAudioFolder());
-        if (!audioFolder.exists())
-            audioFolder.mkdirs();
-
-        pcmFile = new File(audioFolder, System.currentTimeMillis() + ".pcm");
+        pcmFile = new File(FilePathUtil.getAudioFolder(), System.currentTimeMillis() + ".pcm");
         try {
-            FileOutputStream fileOutputStream = new FileOutputStream(pcmFile);
-            BufferedOutputStream bufferedOutputStream = new BufferedOutputStream(fileOutputStream);
-            DataOutputStream dataOutputStream = new DataOutputStream(bufferedOutputStream);
+            DataOutputStream dataOutputStream = new DataOutputStream(
+                    new BufferedOutputStream(new FileOutputStream(pcmFile)));
             byte[] buffer = new byte[bufferSize];
             audioRecord.startRecording();
             while (isRecording
@@ -290,13 +270,14 @@ public class DialogActivity extends AppCompatActivity {
         }
         //文件转换
         String filename = FilenameUtils.getBaseName(pcmFile.getName()) + ".wav";
+        //TODO 其实这里有问题，我录制的音频文件，应该放到最终位置，但是现在又不知道最终的文件名
         File wavFile = new File(pcmFile.getParent(), filename);
         Pcm2Wav.convert(pcmFile, wavFile, sampleRateInHz, audioFormat, 1, bufferSize);
         //删除pcm文件
         pcmFile.delete();
         pcmFile = null;
 
-        //获取音频时长
+        //TODO 获取音频时长
         long duration = 0;
 
         //发语音消息
@@ -335,9 +316,16 @@ public class DialogActivity extends AppCompatActivity {
                 }
                 //到这里，说明是发送成功了
                 SendMessageResponse sendMessageResponse = result.getData();
+                //给界面添加一条记录
+                PersonMessage personMessage = new PersonMessage();
+                personMessage.setSenderHeadUrl(UserUtil.headImageUrl);
+                personMessage.setIsSend(true);
+                personMessage.setMessageType(MessageType.AUDIO);
+                personMessage.setFileName(wavFile.getName());
+                updateDialog(personMessage);
                 //如果需要上传文件，则上传
                 if (sendMessageResponse.getIsNeedUpload()) {
-                    uploadAudio(sendMessageResponse, wavFile);
+                    uploadFile(sendMessageResponse, wavFile);
                 }
             }
         });
@@ -346,20 +334,25 @@ public class DialogActivity extends AppCompatActivity {
     //发送录音文件
     private void recordAndSendAudio() {
         //如果不在录音，那就开始录音
-        if (!isRecording)
+        if (!isRecording) {
+            btn_audio.setText(R.string.recording);
+            btn_audio.setBackgroundColor(Color.RED);
             new Thread() {
                 @Override
                 public void run() {
                     recordAudio();
                 }
             }.start();
-        else
+        } else {
             //如果正在录音，再次点击按钮，就停止录音
+            btn_audio.setBackgroundColor(Color.parseColor("#6200EE"));
+            btn_audio.setText(R.string.audio);
             stopRecord();
+        }
     }
 
     //上传文件
-    private void uploadAudio(SendMessageResponse response, File file) {
+    private void uploadFile(SendMessageResponse response, File file) {
         CredentialProvider credentialProvider
                 = new CredentialProvider(response.getOssCredential());
         TransferManager transferManager
@@ -371,18 +364,15 @@ public class DialogActivity extends AppCompatActivity {
                 file.getPath(), null);
 
         //设置上传进度回调
-        cosxmlUploadTask.setCosXmlProgressListener(new CosXmlProgressListener() {
-            @Override
-            public void onProgress(long complete, long target) {
-                Log.e("tag", complete + " / " + target);
-            }
-        });
+        cosxmlUploadTask.setCosXmlProgressListener((complete, target) ->
+                Log.e("tag", complete + " / " + target)
+        );
         //设置返回结果回调
         cosxmlUploadTask.setCosXmlResultListener(new CosXmlResultListener() {
             @Override
             public void onSuccess(CosXmlRequest request, CosXmlResult result) {
-                COSXMLUploadTask.COSXMLUploadTaskResult cOSXMLUploadTaskResult =
-                        (COSXMLUploadTask.COSXMLUploadTaskResult) result;
+                COSXMLUploadTask.COSXMLUploadTaskResult cOSXMLUploadTaskResult
+                        = (COSXMLUploadTask.COSXMLUploadTaskResult) result;
             }
 
             @Override
@@ -397,13 +387,10 @@ public class DialogActivity extends AppCompatActivity {
             }
         });
         //设置任务状态回调, 可以查看任务过程
-        cosxmlUploadTask.setTransferStateListener(new TransferStateListener() {
-            @Override
-            public void onStateChanged(TransferState state) {
-                //当上传完成时，通知应用服务器
-                if (state == TransferState.COMPLETED) {
-                    onUploadFileFinish(response, file);
-                }
+        cosxmlUploadTask.setTransferStateListener(state -> {
+            //当上传完成时，通知应用服务器
+            if (state == TransferState.COMPLETED) {
+                onUploadFileFinish(response, file);
             }
         });
     }
@@ -454,12 +441,53 @@ public class DialogActivity extends AppCompatActivity {
         });
     }
 
-    public void addMessage(PersonMessage personMessage) {
+
+    /**
+     * 判断消息类型是不是文件
+     */
+    public boolean isFileTypeMessage(String messageType) {
+        return messageType.equals(MessageType.AUDIO)
+                || messageType.equals(MessageType.IMAGE)
+                || messageType.equals(MessageType.VIDEO);
+    }
+
+    /**
+     * 更新界面
+     *
+     * @param personMessage
+     */
+    private void updateDialog(PersonMessage personMessage) {
         //添加到dialog里
         messageAdapter.addMessage(personMessage);
         //滑动到最低端
         rv_dialog.scrollToPosition(messageAdapter.getItemCount() - 1);
+    }
+
+    public void addMessage(PersonMessage personMessage) {
+        //判断类型，看是否需要下载
+        String messageType = personMessage.getMessageType();
+        //如果不需要下载，直接更新界面
+        if (!isFileTypeMessage(messageType)) {
+            updateDialog(personMessage);
+        } else {
+            //需要下载文件
+            //判断消息类型
+            if (messageType.equals(MessageType.AUDIO)) {
+                //先下载，等待下载完成后，再更新界面
+                new Thread(() -> {
+                    try {
+                        FileUtils.copyURLToFile(new URL(personMessage.getFileUrl()),
+                                FilePathUtil.getFile(personMessage));
+                        runOnUiThread(() -> updateDialog(personMessage));
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                }).start();
+            }
+        }
+
         //写入数据库
+
     }
 
     /**
@@ -493,9 +521,14 @@ public class DialogActivity extends AppCompatActivity {
                 personMessage.setToUserId(data.getToUserId());
                 personMessage.setSenderHeadUrl(conversation.getHeadImageUrl());
                 personMessage.setIsSend(false);
-                personMessage.setMessageType(MessageType.TEXT);
+                personMessage.setMessageType(data.getMessageType());
                 personMessage.setContent(data.getContent());
                 personMessage.setCreateTime(data.getCreateTime());
+
+                personMessage.setFileUrl(data.getFileUrl());
+                personMessage.setFileName(data.getFileName());
+                personMessage.setImagePreviewUrl(data.getImagePreviewUrl());
+
                 //TODO 这里应该有一个判断，如果打开了这个conversation，那就添加到界面上
                 //TODO 写入数据库
                 addMessage(personMessage);

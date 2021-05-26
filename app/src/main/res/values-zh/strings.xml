@@ -26,4 +26,5 @@
     <string name="yes">是</string>
     <string name="no">否</string>
     <string name="size">大小</string>
+    <string name="recording">录音中</string>
 </resources>

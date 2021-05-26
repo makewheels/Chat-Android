@@ -19,20 +19,24 @@ public class JpushHandler {
                 });
         String version = map.get("version");
         String cmd = map.get("cmd");
-        if (StringUtils.isNotBlank(version) && version.equals("1")) {
+        if (StringUtils.isEmpty(version))
+            return;
+        if (version.equals("1")) {
             //拉取消息
             if (cmd.equals("pullMessage")) {
                 String type = map.get("type");
                 String messageId = map.get("messageId");
+                String messageType = map.get("messageType");
                 //给人发的消息
                 if (type.equals("person")) {
                     //发送广播通知 DialogActivity
                     Intent intent = new Intent(DialogActivity.ACTION_RECEIVE_PERSON_MESSAGE);
                     intent.putExtra("messageId", messageId);
+                    intent.putExtra("messageType", messageType);
                     context.sendBroadcast(intent);
 
                     //群消息
-                } else if (type.equals(Constants.CONVERSATION.TYPE_PERSON)) {
+                } else if (type.equals(Constants.CONVERSATION.TYPE_GROUP)) {
                     //TODO 极光推送收到，拉取群消息
                 }
             }

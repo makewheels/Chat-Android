@@ -2,6 +2,10 @@ package com.androiddeveloper.chat.utils;
 
 import android.content.Context;
 
+import com.androiddeveloper.chat.main.message.dialogperson.PersonMessage;
+
+import java.io.File;
+
 /**
  * 文件路径工具类
  */
@@ -9,6 +13,10 @@ public class FilePathUtil {
     //    /data/user/0/com.androiddeveloper.chat/files/chat
     public static String ROOT_PATH = ContextUtil.applicationContext.getFilesDir().getPath()
             + "/" + Constants.APPLICATION_NAME;
+
+    public static String getRootPath() {
+        return ROOT_PATH;
+    }
 
     /**
      * apk下载文件夹
@@ -23,20 +31,25 @@ public class FilePathUtil {
      *
      * @return
      */
-    public static String getAudioFolder() {
+    public static File getAudioFolder() {
         //    /data/user/0/com.androiddeveloper.chat/files/chat
         //    /user60ed442772984f43820a559101371a93/audio
-        return ROOT_PATH + "/" + UserUtil.userId + "/audio";
+        File file = new File(ROOT_PATH + "/" + UserUtil.userId + "/audio");
+        if (!file.exists())
+            file.mkdirs();
+        return file;
     }
 
     /**
-     * 图片文件夹
+     * 获取文件路径
      *
+     * @param personMessage
      * @return
      */
-    public static String getImageFolder() {
-        //    /data/user/0/com.androiddeveloper.chat/files/chat
-        //    /user60ed442772984f43820a559101371a93/image
-        return ROOT_PATH + "/" + UserUtil.userId + "/image";
+    public static File getFile(PersonMessage personMessage) {
+        return new File(FilePathUtil.getRootPath() + "/"
+                + personMessage.getConversationId() + "/"
+                + personMessage.getMessageType() + "/" + personMessage.getFileName());
     }
+
 }

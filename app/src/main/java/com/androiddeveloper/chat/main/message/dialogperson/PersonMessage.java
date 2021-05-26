@@ -31,4 +31,8 @@ public class PersonMessage {
     private Date readTime;
 
     private Date createTime;
+
+    private String fileUrl;
+    private String fileName;
+    private String imagePreviewUrl;
 }

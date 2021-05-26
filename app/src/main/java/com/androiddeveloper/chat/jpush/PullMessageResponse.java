@@ -20,14 +20,16 @@ public class PullMessageResponse {
     private String toUserId;
 
     private Boolean isArrive;
-
     private Date arriveTime;
 
     private Boolean isRead;
-
     private Date readTime;
 
     private Date createTime;
 
     private String content;
+
+    private String fileUrl;
+    private String fileName;
+    private String imagePreviewUrl;
 }

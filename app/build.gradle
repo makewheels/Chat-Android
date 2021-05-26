@@ -104,7 +104,6 @@ dependencies {
     implementation group: 'org.apache.commons', name: 'commons-collections4', version: '4.4'
     implementation group: 'commons-codec', name: 'commons-codec', version: '1.15'
 
-
 //    bugly
     implementation 'com.tencent.bugly:crashreport:3.3.3'
     implementation 'com.tencent.bugly:nativecrashreport:3.7.700'
